@@ -1525,7 +1525,23 @@
       return bucketColors[bucketFn(v)];
     }
 
-    function createAggregateBarChart(canvasId, data, zoneLabels, hideXLabels = false) {
+    function calculateAggregateAxisRange(...countGroups) {
+      const maxCount = Math.max(0, ...countGroups.flat());
+      if (maxCount <= 0) return { max: 1, stepSize: 1 };
+
+      const roughStep = maxCount / 5;
+      const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+      const normalized = roughStep / magnitude;
+      const niceMultiplier = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+      const stepSize = Math.max(1, Math.round(niceMultiplier * magnitude));
+
+      return {
+        max: Math.ceil(maxCount / stepSize) * stepSize,
+        stepSize,
+      };
+    }
+
+    function createAggregateBarChart(canvasId, data, zoneLabels, xAxisRange, hideXLabels = false) {
       return new Chart(document.getElementById(canvasId), {
         type: "bar",
         data: {
@@ -1570,12 +1586,12 @@
           scales: {
             x: {
               min: 0,
-              max: 70,
+              max: xAxisRange.max,
               title: { display: false },
               ticks: {
                 display: !hideXLabels,
                 padding: 0,
-                stepSize: 5,
+                stepSize: xAxisRange.stepSize,
                 precision: 0,
                 callback: (value) => {
                   if (hideXLabels) return "";
@@ -1610,6 +1626,7 @@
       const diastolicPointColors = diastolic.map((v) => colorForBucket(v, bucketDiastolic));
       const systolicAggregate = countByBucket(systolic, bucketSystolic);
       const diastolicAggregate = countByBucket(diastolic, bucketDiastolic);
+      const aggregateAxisRange = calculateAggregateAxisRange(systolicAggregate, diastolicAggregate);
 
       const ctx = document.getElementById("chart").getContext("2d");
       mainChart = new Chart(ctx, {
@@ -1742,8 +1759,8 @@
         },
       });
 
-      systolicAggChart = createAggregateBarChart("chartSystolicAgg", systolicAggregate, systolicZoneLabelsPadded, true);
-      diastolicAggChart = createAggregateBarChart("chartDiastolicAgg", diastolicAggregate, diastolicZoneLabelsPadded);
+      systolicAggChart = createAggregateBarChart("chartSystolicAgg", systolicAggregate, systolicZoneLabelsPadded, aggregateAxisRange, true);
+      diastolicAggChart = createAggregateBarChart("chartDiastolicAgg", diastolicAggregate, diastolicZoneLabelsPadded, aggregateAxisRange);
       chartsSection.classList.remove("hidden");
     }
 
