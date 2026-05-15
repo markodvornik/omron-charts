@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krvni tlak, pulz in agregat tlaka po conah</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      padding: 24px;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      margin: 0 auto;
+    }
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      flex: 1;
+      min-width: 0;
+    }
+    .page-menu-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      box-shadow: none;
+    }
+    .page-menu-btn-text {
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .page-menu-btn svg {
+      display: block;
+    }
+    .page-menu-btn:hover {
+      background: rgba(15, 23, 42, 0.05);
+      border-color: #e2e8f0;
+      color: #0f172a;
+    }
+    .page-menu-btn:focus-visible {
+      outline: 2px solid #0f172a;
+      outline-offset: 2px;
+    }
+    .page-header-actions {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-select {
+      min-height: 40px;
+      padding: 0 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: none;
+    }
+    .lang-select:hover {
+      background: rgba(15, 23, 42, 0.05);
+      border-color: #e2e8f0;
+      color: #0f172a;
+    }
+    .lang-select:focus-visible {
+      outline: 2px solid #0f172a;
+      outline-offset: 2px;
+    }
+    .subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .charts-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 32%);
+      gap: 20px;
+      align-items: center;
+    }
+    .chart-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      padding: 24px;
+      min-height: 0;
+    }
+    .main-chart {
+      align-self: stretch;
+    }
+    .aggregate-column {
+      align-self: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      padding: 4px 12px 0;
+      overflow: hidden;
+    }
+    .aggregate-chart {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .aggregate-chart-body {
+      width: 100%;
+      max-height: 280px;
+      flex: 0 0 auto;
+    }
+    @media (max-width: 1100px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+      .main-chart {
+        align-self: auto;
+      }
+      .aggregate-column {
+        align-self: auto;
+      }
+    }
+  
+    .csv-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, 0.45);
+    }
+    .csv-modal-panel {
+      position: relative;
+      max-width: 540px;
+      width: 100%;
+      max-height: min(90vh, 560px);
+      overflow-y: auto;
+      margin: 0;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+    }
+    .csv-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .csv-modal-title {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+    .csv-modal-close {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: #64748b;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .csv-modal-close:focus-visible {
+      outline: 2px solid #0f172a;
+      outline-offset: 2px;
+    }
+    .upload-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    .upload-form label {
+      font-weight: 500;
+    }
+    .upload-form input[type="file"] {
+      font-size: 0.9rem;
+    }
+    .upload-form button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .upload-form button:hover {
+      background: #1e293b;
+    }
+    .upload-hint {
+      width: 100%;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+    .upload-error {
+      margin-top: 12px;
+      color: #dc2626;
+      font-size: 0.9rem;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media print {
+      .csv-modal,
+      .page-menu-btn,
+      .lang-select {
+        display: none !important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1 id="pageHeading" data-i18n="page.title">Krvni tlak, pulz in agregat tlaka po conah</h1>
+      <div class="page-header-actions">
+        <label id="langSelectLabel" class="visually-hidden" for="langSelect" data-i18n="lang.selectLabel">Jezik</label>
+        <select id="langSelect" class="lang-select" aria-labelledby="langSelectLabel"></select>
+      <button
+        type="button"
+        id="toggleFormBtn"
+        class="page-menu-btn"
+        aria-expanded="false"
+        aria-controls="csvModal"
+        aria-haspopup="dialog"
+        title="Odpri uvoz CSV"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        <span class="page-menu-btn-text" data-i18n="btn.csv.label">CSV</span>
+      </button>
+      </div>
+    </div>
+    <p id="subtitle" class="subtitle" data-i18n="subtitle.empty">Naložite CSV poročilo za prikaz grafov.</p>
+    <div id="chartsSection" class="charts-grid hidden">
+      <div class="chart-card main-chart">
+        <canvas id="chart"></canvas>
+      </div>
+      <div class="aggregate-column">
+        <div class="aggregate-chart">
+          <div class="aggregate-chart-body">
+            <canvas id="chartSystolicAgg"></canvas>
+          </div>
+        </div>
+        <div class="aggregate-chart">
+          <div class="aggregate-chart-body">
+            <canvas id="chartDiastolicAgg"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="csvModal" class="csv-modal hidden" role="dialog" aria-modal="true" aria-labelledby="csvModalTitle" aria-hidden="true">
+    <div class="csv-modal-panel chart-card">
+      <div class="csv-modal-header">
+        <h2 id="csvModalTitle" class="csv-modal-title" data-i18n="modal.title">Uvoz CSV</h2>
+        <button type="button" id="csvModalClose" class="csv-modal-close" data-i18n-attr="aria-label" data-i18n="modal.close" aria-label="Zapri">&times;</button>
+      </div>
+      <form id="csvUploadForm" class="upload-form">
+        <label for="csvFile" data-i18n="form.fileLabel">CSV datoteka</label>
+        <input type="file" id="csvFile" name="csvFile" accept=".csv,text/csv" required />
+        <button type="submit" data-i18n="form.submit">Naloži in prikaži</button>
+        <p class="upload-hint" data-i18n="form.hint">Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — ločilo podpičje (;)</p>
+      </form>
+      <p id="uploadError" class="upload-error hidden" role="alert"></p>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Editable UI strings — add languages by copying the sl block and translating values.
+     * Keys must stay the same across locales.
+     */
+    const TRANSLATIONS = {
+  "sl": {
+    "page.title": "Krvni tlak, pulz in agregat tlaka po conah",
+    "subtitle.empty": "Naložite CSV poročilo za prikaz grafov.",
+    "lang.selectLabel": "Jezik",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Odpri uvoz CSV",
+    "btn.csv.close": "Zapri okno za uvoz CSV",
+    "modal.title": "Uvoz CSV",
+    "modal.close": "Zapri",
+    "form.fileLabel": "CSV datoteka",
+    "form.submit": "Naloži in prikaži",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — ločilo podpičje (;)",
+    "chart.axisDateTime": "Datum in ura",
+    "chart.systolic": "Sistolični (mmHg)",
+    "chart.diastolic": "Diastolični (mmHg)",
+    "chart.pulse": "Utrip (bpm)",
+    "readings.sl.one": "odčitek",
+    "readings.sl.few": "odčitki",
+    "readings.sl.many": "odčitkov",
+    "readings.one": "odčitek",
+    "readings.other": "odčitkov",
+    "err.emptyFile": "Datoteka je prazna.",
+    "err.csvMinLines": "CSV mora vsebovati glavo in vsaj eno vrstico podatkov.",
+    "err.columns": "Manjkajo pričakovani stolpci: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Neveljaven datum/ura v vrstici {row}: {detail}",
+    "err.badNumber": "Neveljavne številčne vrednosti v vrstici {row}.",
+    "err.noValidRows": "V CSV ni veljavnih odčitkov.",
+    "err.noFile": "Izberite CSV datoteko.",
+    "err.generic": "Napaka pri branju CSV."
+  },
+  "en": {
+    "page.title": "Blood pressure, pulse, and pressure aggregates by zone",
+    "subtitle.empty": "Upload a CSV report to display the charts.",
+    "lang.selectLabel": "Language",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Open CSV import",
+    "btn.csv.close": "Close CSV import",
+    "modal.title": "Import CSV",
+    "modal.close": "Close",
+    "form.fileLabel": "CSV file",
+    "form.submit": "Load and show",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — separator semicolon (;)",
+    "chart.axisDateTime": "Date and time",
+    "chart.systolic": "Systolic (mmHg)",
+    "chart.diastolic": "Diastolic (mmHg)",
+    "chart.pulse": "Pulse (bpm)",
+    "readings.one": "reading",
+    "readings.other": "readings",
+    "err.emptyFile": "The file is empty.",
+    "err.csvMinLines": "CSV must contain a header and at least one data row.",
+    "err.columns": "Missing expected columns: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Invalid date/time on row {row}: {detail}",
+    "err.badNumber": "Invalid numeric values on row {row}.",
+    "err.noValidRows": "No valid readings in CSV.",
+    "err.noFile": "Choose a CSV file.",
+    "err.generic": "Error reading CSV."
+  },
+  "bg": {
+    "page.title": "Кръвно налягане, пулс и агрегати по зони",
+    "subtitle.empty": "Качете CSV отчет, за да покажете графиките.",
+    "lang.selectLabel": "Език",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Отваряне на CSV импорт",
+    "btn.csv.close": "Затваряне на CSV импорт",
+    "modal.title": "Импорт на CSV",
+    "modal.close": "Затвори",
+    "form.fileLabel": "CSV файл",
+    "form.submit": "Зареждане и показване",
+    "form.hint": "Формат: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — разделител точка и запетая (;)",
+    "chart.axisDateTime": "Дата и час",
+    "chart.systolic": "Систолна (mmHg)",
+    "chart.diastolic": "Диастолна (mmHg)",
+    "chart.pulse": "Пулс (bpm)",
+    "readings.sl.one": "измерване",
+    "readings.sl.few": "измервания",
+    "readings.sl.many": "измервания",
+    "readings.one": "измерване",
+    "readings.other": "измервания",
+    "err.emptyFile": "Файлът е празен.",
+    "err.csvMinLines": "CSV трябва да съдържа заглавие и поне един ред данни.",
+    "err.columns": "Липсват очаквани колони: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Невалидна дата/час на ред {row}: {detail}",
+    "err.badNumber": "Невалидни числови стойности на ред {row}.",
+    "err.noValidRows": "Няма валидни записи в CSV.",
+    "err.noFile": "Изберете CSV файл.",
+    "err.generic": "Грешка при четене на CSV."
+  },
+  "hr": {
+    "page.title": "Krvni tlak, puls i agregati tlaka po zonama",
+    "subtitle.empty": "Učitajte CSV izvještaj za prikaz grafikona.",
+    "lang.selectLabel": "Jezik",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Otvori uvoz CSV-a",
+    "btn.csv.close": "Zatvori uvoz CSV-a",
+    "modal.title": "Uvoz CSV-a",
+    "modal.close": "Zatvori",
+    "form.fileLabel": "CSV datoteka",
+    "form.submit": "Učitaj i prikaži",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — odvajač točka-zarez (;)",
+    "chart.axisDateTime": "Datum i vrijeme",
+    "chart.systolic": "Sistolički (mmHg)",
+    "chart.diastolic": "Dijastolički (mmHg)",
+    "chart.pulse": "Puls (bpm)",
+    "readings.sl.one": "odčitak",
+    "readings.sl.few": "odčitaka",
+    "readings.sl.many": "odčitaka",
+    "readings.one": "odčitak",
+    "readings.other": "odčitaka",
+    "err.emptyFile": "Datoteka je prazna.",
+    "err.csvMinLines": "CSV mora sadržavati zaglavlje i najmanje jedan red podataka.",
+    "err.columns": "Nedostaju očekivani stupci: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Nevažeći datum/vrijeme u retku {row}: {detail}",
+    "err.badNumber": "Nevažeće brojčane vrijednosti u retku {row}.",
+    "err.noValidRows": "Nema valjanih odčitaka u CSV-u.",
+    "err.noFile": "Odaberite CSV datoteku.",
+    "err.generic": "Greška pri čitanju CSV-a."
+  },
+  "cs": {
+    "page.title": "Tlak krve, tep a agregace podle zón",
+    "subtitle.empty": "Nahrajte CSV zprávu pro zobrazení grafů.",
+    "lang.selectLabel": "Jazyk",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Otevřít import CSV",
+    "btn.csv.close": "Zavřít import CSV",
+    "modal.title": "Import CSV",
+    "modal.close": "Zavřít",
+    "form.fileLabel": "Soubor CSV",
+    "form.submit": "Načíst a zobrazit",
+    "form.hint": "Formát: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — oddělovač středník (;)",
+    "chart.axisDateTime": "Datum a čas",
+    "chart.systolic": "Systolický (mmHg)",
+    "chart.diastolic": "Diastolický (mmHg)",
+    "chart.pulse": "Tep (bpm)",
+    "readings.sl.one": "měření",
+    "readings.sl.few": "měření",
+    "readings.sl.many": "měření",
+    "readings.one": "měření",
+    "readings.other": "měření",
+    "err.emptyFile": "Soubor je prázdný.",
+    "err.csvMinLines": "CSV musí obsahovat hlavičku a alespoň jeden řádek dat.",
+    "err.columns": "Chybí očekávané sloupce: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Neplatné datum/čas na řádku {row}: {detail}",
+    "err.badNumber": "Neplatné číselné hodnoty na řádku {row}.",
+    "err.noValidRows": "V CSV nejsou platná měření.",
+    "err.noFile": "Vyberte soubor CSV.",
+    "err.generic": "Chyba při čtení CSV."
+  },
+  "da": {
+    "page.title": "Blodtryk, puls og trykaggregeringer pr. zone",
+    "subtitle.empty": "Upload en CSV-rapport for at vise graferne.",
+    "lang.selectLabel": "Sprog",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Åbn CSV-import",
+    "btn.csv.close": "Luk CSV-import",
+    "modal.title": "Importér CSV",
+    "modal.close": "Luk",
+    "form.fileLabel": "CSV-fil",
+    "form.submit": "Indlæs og vis",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — semikolon (;)",
+    "chart.axisDateTime": "Dato og tid",
+    "chart.systolic": "Systolisk (mmHg)",
+    "chart.diastolic": "Diastolisk (mmHg)",
+    "chart.pulse": "Puls (bpm)",
+    "readings.sl.one": "aflæsning",
+    "readings.sl.few": "aflæsninger",
+    "readings.sl.many": "aflæsninger",
+    "readings.one": "aflæsning",
+    "readings.other": "aflæsninger",
+    "err.emptyFile": "Filen er tom.",
+    "err.csvMinLines": "CSV skal indeholde en overskrift og mindst én datarække.",
+    "err.columns": "Manglende forventede kolonner: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Ugyldig dato/tid i række {row}: {detail}",
+    "err.badNumber": "Ugyldige numeriske værdier i række {row}.",
+    "err.noValidRows": "Ingen gyldige aflæsninger i CSV.",
+    "err.noFile": "Vælg en CSV-fil.",
+    "err.generic": "Fejl ved læsning af CSV."
+  },
+  "nl": {
+    "page.title": "Bloeddruk, pols en drukaggregaten per zone",
+    "subtitle.empty": "Upload een CSV-rapport om de grafieken te tonen.",
+    "lang.selectLabel": "Taal",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "CSV-import openen",
+    "btn.csv.close": "CSV-import sluiten",
+    "modal.title": "CSV importeren",
+    "modal.close": "Sluiten",
+    "form.fileLabel": "CSV-bestand",
+    "form.submit": "Laden en tonen",
+    "form.hint": "Formaat: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — scheidingsteken puntkomma (;)",
+    "chart.axisDateTime": "Datum en tijd",
+    "chart.systolic": "Systolisch (mmHg)",
+    "chart.diastolic": "Diastolisch (mmHg)",
+    "chart.pulse": "Pols (bpm)",
+    "readings.sl.one": "meting",
+    "readings.sl.few": "metingen",
+    "readings.sl.many": "metingen",
+    "readings.one": "meting",
+    "readings.other": "metingen",
+    "err.emptyFile": "Het bestand is leeg.",
+    "err.csvMinLines": "CSV moet een kopregel en minstens één gegevensrij bevatten.",
+    "err.columns": "Verwachte kolommen ontbreken: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Ongeldige datum/tijd op rij {row}: {detail}",
+    "err.badNumber": "Ongeldige numerieke waarden op rij {row}.",
+    "err.noValidRows": "Geen geldige metingen in CSV.",
+    "err.noFile": "Kies een CSV-bestand.",
+    "err.generic": "Fout bij lezen van CSV."
+  },
+  "et": {
+    "page.title": "Vererõhk, pulss ja tsoonide kaupa agregaadid",
+    "subtitle.empty": "Graafikute kuvamiseks laadige üles CSV aruanne.",
+    "lang.selectLabel": "Keel",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Ava CSV import",
+    "btn.csv.close": "Sulge CSV import",
+    "modal.title": "CSV import",
+    "modal.close": "Sulge",
+    "form.fileLabel": "CSV fail",
+    "form.submit": "Laadi ja kuva",
+    "form.hint": "Vorming: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — eraldaja semikoolon (;)",
+    "chart.axisDateTime": "Kuupäev ja kellaaeg",
+    "chart.systolic": "Süstoolne (mmHg)",
+    "chart.diastolic": "Diastoolne (mmHg)",
+    "chart.pulse": "Puls (löök/min)",
+    "readings.sl.one": "mõõtmine",
+    "readings.sl.few": "mõõtmist",
+    "readings.sl.many": "mõõtmist",
+    "readings.one": "mõõtmine",
+    "readings.other": "mõõtmist",
+    "err.emptyFile": "Fail on tühi.",
+    "err.csvMinLines": "CSV peab sisaldama päist ja vähemalt ühte andmerida.",
+    "err.columns": "Puuduvad oodatavad veerud: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Kehtetu kuupäev/kellaaeg real {row}: {detail}",
+    "err.badNumber": "Kehtetud arvväärtused real {row}.",
+    "err.noValidRows": "CSV-s pole kehtivaid mõõtmisi.",
+    "err.noFile": "Valige CSV fail.",
+    "err.generic": "Viga CSV lugemisel."
+  },
+  "fi": {
+    "page.title": "Verenpaine, syke ja alueittaiset aggregaatit",
+    "subtitle.empty": "Lataa CSV-raportti kaavioiden näyttämiseksi.",
+    "lang.selectLabel": "Kieli",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Avaa CSV-tuonti",
+    "btn.csv.close": "Sulje CSV-tuonti",
+    "modal.title": "Tuo CSV",
+    "modal.close": "Sulje",
+    "form.fileLabel": "CSV-tiedosto",
+    "form.submit": "Lataa ja näytä",
+    "form.hint": "Muoto: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — erotin puolipiste (;)",
+    "chart.axisDateTime": "Päivä ja aika",
+    "chart.systolic": "Systolinen (mmHg)",
+    "chart.diastolic": "Diastolinen (mmHg)",
+    "chart.pulse": "Syke (bpm)",
+    "readings.sl.one": "mittaus",
+    "readings.sl.few": "mittausta",
+    "readings.sl.many": "mittausta",
+    "readings.one": "mittaus",
+    "readings.other": "mittausta",
+    "err.emptyFile": "Tiedosto on tyhjä.",
+    "err.csvMinLines": "CSV:n tulee sisältää otsikkorivi ja vähintään yksi tietorivi.",
+    "err.columns": "Odotetut sarakkeet puuttuvat: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Virheellinen päivä/aika rivillä {row}: {detail}",
+    "err.badNumber": "Virheelliset numeeriset arvot rivillä {row}.",
+    "err.noValidRows": "CSV:ssä ei ole kelvollisia mittauksia.",
+    "err.noFile": "Valitse CSV-tiedosto.",
+    "err.generic": "Virhe CSV:n lukemisessa."
+  },
+  "fr": {
+    "page.title": "Tension artérielle, pouls et agrégats par zone",
+    "subtitle.empty": "Téléchargez un rapport CSV pour afficher les graphiques.",
+    "lang.selectLabel": "Langue",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Ouvrir l’import CSV",
+    "btn.csv.close": "Fermer l’import CSV",
+    "modal.title": "Importer un CSV",
+    "modal.close": "Fermer",
+    "form.fileLabel": "Fichier CSV",
+    "form.submit": "Charger et afficher",
+    "form.hint": "Format : Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — séparateur point-virgule (;)",
+    "chart.axisDateTime": "Date et heure",
+    "chart.systolic": "Systolique (mmHg)",
+    "chart.diastolic": "Diastolique (mmHg)",
+    "chart.pulse": "Pouls (bpm)",
+    "readings.sl.one": "mesure",
+    "readings.sl.few": "mesures",
+    "readings.sl.many": "mesures",
+    "readings.one": "mesure",
+    "readings.other": "mesures",
+    "err.emptyFile": "Le fichier est vide.",
+    "err.csvMinLines": "Le CSV doit contenir un en-tête et au moins une ligne de données.",
+    "err.columns": "Colonnes attendues manquantes : Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Date/heure non valide à la ligne {row} : {detail}",
+    "err.badNumber": "Valeurs numériques non valides à la ligne {row}.",
+    "err.noValidRows": "Aucune mesure valide dans le CSV.",
+    "err.noFile": "Choisissez un fichier CSV.",
+    "err.generic": "Erreur lors de la lecture du CSV."
+  },
+  "de": {
+    "page.title": "Blutdruck, Puls und zonenweise Aggregationen",
+    "subtitle.empty": "Laden Sie einen CSV-Bericht hoch, um die Diagramme anzuzeigen.",
+    "lang.selectLabel": "Sprache",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "CSV-Import öffnen",
+    "btn.csv.close": "CSV-Import schließen",
+    "modal.title": "CSV importieren",
+    "modal.close": "Schließen",
+    "form.fileLabel": "CSV-Datei",
+    "form.submit": "Laden und anzeigen",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — Trennzeichen Semikolon (;)",
+    "chart.axisDateTime": "Datum und Uhrzeit",
+    "chart.systolic": "Systolisch (mmHg)",
+    "chart.diastolic": "Diastolisch (mmHg)",
+    "chart.pulse": "Puls (bpm)",
+    "readings.sl.one": "Messung",
+    "readings.sl.few": "Messungen",
+    "readings.sl.many": "Messungen",
+    "readings.one": "Messung",
+    "readings.other": "Messungen",
+    "err.emptyFile": "Die Datei ist leer.",
+    "err.csvMinLines": "CSV muss eine Kopfzeile und mindestens eine Datenzeile enthalten.",
+    "err.columns": "Erwartete Spalten fehlen: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Ungültiges Datum/Uhrzeit in Zeile {row}: {detail}",
+    "err.badNumber": "Ungültige Zahlenwerte in Zeile {row}.",
+    "err.noValidRows": "Keine gültigen Messwerte in der CSV.",
+    "err.noFile": "Wählen Sie eine CSV-Datei.",
+    "err.generic": "Fehler beim Lesen der CSV."
+  },
+  "el": {
+    "page.title": "Αρτηριακή πίεση, σφυγμός και αθροίσματα ανά ζώνη",
+    "subtitle.empty": "Ανεβάστε αναφορά CSV για εμφάνιση γραφημάτων.",
+    "lang.selectLabel": "Γλώσσα",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Άνοιγμα εισαγωγής CSV",
+    "btn.csv.close": "Κλείσιμο εισαγωγής CSV",
+    "modal.title": "Εισαγωγή CSV",
+    "modal.close": "Κλείσιμο",
+    "form.fileLabel": "Αρχείο CSV",
+    "form.submit": "Φόρτωση και εμφάνιση",
+    "form.hint": "Μορφή: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — διαχωριστικό ερωτηματικό (;)",
+    "chart.axisDateTime": "Ημερομηνία και ώρα",
+    "chart.systolic": "Συστολική (mmHg)",
+    "chart.diastolic": "Διαστολική (mmHg)",
+    "chart.pulse": "Σφυγμός (bpm)",
+    "readings.sl.one": "μέτρηση",
+    "readings.sl.few": "μετρήσεις",
+    "readings.sl.many": "μετρήσεις",
+    "readings.one": "μέτρηση",
+    "readings.other": "μετρήσεις",
+    "err.emptyFile": "Το αρχείο είναι κενό.",
+    "err.csvMinLines": "Το CSV πρέπει να περιέχει κεφαλίδα και τουλάχιστον μία γραμμή δεδομένων.",
+    "err.columns": "Λείπουν αναμενόμενες στήλες: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Μη έγκυρη ημερομηνία/ώρα στη γραμμή {row}: {detail}",
+    "err.badNumber": "Μη έγκυρες αριθμητικές τιμές στη γραμμή {row}.",
+    "err.noValidRows": "Δεν υπάρχουν έγκυρες μετρήσεις στο CSV.",
+    "err.noFile": "Επιλέξτε αρχείο CSV.",
+    "err.generic": "Σφάλμα ανάγνωσης CSV."
+  },
+  "hu": {
+    "page.title": "Vérnyomás, pulzus és zónánkénti összesítések",
+    "subtitle.empty": "Töltse fel a CSV jelentést a diagramok megjelenítéséhez.",
+    "lang.selectLabel": "Nyelv",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "CSV import megnyitása",
+    "btn.csv.close": "CSV import bezárása",
+    "modal.title": "CSV importálás",
+    "modal.close": "Bezárás",
+    "form.fileLabel": "CSV fájl",
+    "form.submit": "Betöltés és megjelenítés",
+    "form.hint": "Formátum: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — elválasztó pontosvessző (;)",
+    "chart.axisDateTime": "Dátum és idő",
+    "chart.systolic": "Szisztolés (mmHg)",
+    "chart.diastolic": "Diasztolés (mmHg)",
+    "chart.pulse": "Pulzus (bpm)",
+    "readings.sl.one": "mérés",
+    "readings.sl.few": "mérés",
+    "readings.sl.many": "mérés",
+    "readings.one": "mérés",
+    "readings.other": "mérés",
+    "err.emptyFile": "A fájl üres.",
+    "err.csvMinLines": "A CSV-nek tartalmaznia kell fejlécet és legalább egy adatsort.",
+    "err.columns": "Hiányoznak az elvárt oszlopok: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Érvénytelen dátum/idő a(z) {row}. sorban: {detail}",
+    "err.badNumber": "Érvénytelen numerikus értékek a(z) {row}. sorban.",
+    "err.noValidRows": "Nincs érvényes mérés a CSV-ben.",
+    "err.noFile": "Válasszon CSV fájlt.",
+    "err.generic": "Hiba a CSV olvasásakor."
+  },
+  "ga": {
+    "page.title": "Brú fola, cuisle agus comhiomláin brú de réir crios",
+    "subtitle.empty": "Uaslódáil tuairisc CSV chun na graif a thaispeáint.",
+    "lang.selectLabel": "Teanga",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Oscail allmhairiú CSV",
+    "btn.csv.close": "Dún allmhairiú CSV",
+    "modal.title": "Iompórtáil CSV",
+    "modal.close": "Dún",
+    "form.fileLabel": "Comhad CSV",
+    "form.submit": "Lódáil agus taispeáin",
+    "form.hint": "Formáid: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — deighilteoir leathstad (;)",
+    "chart.axisDateTime": "Dáta agus am",
+    "chart.systolic": "Systolic (mmHg)",
+    "chart.diastolic": "Diastolic (mmHg)",
+    "chart.pulse": "Cuisle (bpm)",
+    "readings.sl.one": "léamh",
+    "readings.sl.few": "léamhanna",
+    "readings.sl.many": "léamhanna",
+    "readings.one": "léamh",
+    "readings.other": "léamhanna",
+    "err.emptyFile": "Tá an comhad folamh.",
+    "err.csvMinLines": "Caithfidh CSV ceanntásc agus ar a laghad sraith sonraí amháin a bheith ann.",
+    "err.columns": "Colún a bhfuiltear ag súil leo ar iarraidh: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Dáta/am neamhbhailí ar ró {row}: {detail}",
+    "err.badNumber": "Luachanna uimhreacha do-ghlactha ar ró {row}.",
+    "err.noValidRows": "Níl aon léamhair bhailí sa CSV.",
+    "err.noFile": "Roghnaigh comhad CSV.",
+    "err.generic": "Earráid ag léamh CSV."
+  },
+  "it": {
+    "page.title": "Pressione arteriosa, polso e aggregati per zona",
+    "subtitle.empty": "Carica un report CSV per visualizzare i grafici.",
+    "lang.selectLabel": "Lingua",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Apri importazione CSV",
+    "btn.csv.close": "Chiudi importazione CSV",
+    "modal.title": "Importa CSV",
+    "modal.close": "Chiudi",
+    "form.fileLabel": "File CSV",
+    "form.submit": "Carica e mostra",
+    "form.hint": "Formato: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — separatore punto e virgola (;)",
+    "chart.axisDateTime": "Data e ora",
+    "chart.systolic": "Sistolica (mmHg)",
+    "chart.diastolic": "Diastolica (mmHg)",
+    "chart.pulse": "Polso (bpm)",
+    "readings.sl.one": "misura",
+    "readings.sl.few": "misure",
+    "readings.sl.many": "misure",
+    "readings.one": "misura",
+    "readings.other": "misure",
+    "err.emptyFile": "Il file è vuoto.",
+    "err.csvMinLines": "Il CSV deve contenere intestazione e almeno una riga dati.",
+    "err.columns": "Mancano le colonne attese: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Data/ora non valida alla riga {row}: {detail}",
+    "err.badNumber": "Valori numerici non validi alla riga {row}.",
+    "err.noValidRows": "Nessuna misura valida nel CSV.",
+    "err.noFile": "Scegli un file CSV.",
+    "err.generic": "Errore durante la lettura del CSV."
+  },
+  "lv": {
+    "page.title": "Asinsspiediens, pulss un apkopošana pa zonām",
+    "subtitle.empty": "Augšupielādējiet CSV atskaiti, lai rādītu grafikus.",
+    "lang.selectLabel": "Valoda",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Atvērt CSV importu",
+    "btn.csv.close": "Aizvērt CSV importu",
+    "modal.title": "CSV imports",
+    "modal.close": "Aizvērt",
+    "form.fileLabel": "CSV fails",
+    "form.submit": "Ielādē un rādi",
+    "form.hint": "Formāts: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — atdalītājs semikols (;)",
+    "chart.axisDateTime": "Datums un laiks",
+    "chart.systolic": "Sistoliskais (mmHg)",
+    "chart.diastolic": "Diastoliskais (mmHg)",
+    "chart.pulse": "Pulss (bpm)",
+    "readings.sl.one": "mērījums",
+    "readings.sl.few": "mērījumi",
+    "readings.sl.many": "mērījumi",
+    "readings.one": "mērījums",
+    "readings.other": "mērījumi",
+    "err.emptyFile": "Fails ir tukšs.",
+    "err.csvMinLines": "CSV jāsatur virsraksts un vismaz viena datu rinda.",
+    "err.columns": "Trūkst sagaidāmās kolonnas: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Nederīgs datums/laiks rindā {row}: {detail}",
+    "err.badNumber": "Nederīgas skaitliskās vērtības rindā {row}.",
+    "err.noValidRows": "CSV nav derīgu mērījumu.",
+    "err.noFile": "Izvēlieties CSV failu.",
+    "err.generic": "Kļūda, lasot CSV."
+  },
+  "lt": {
+    "page.title": "Kraujospūdis, pulsas ir suvestinės pagal zonas",
+    "subtitle.empty": "Įkelkite CSV ataskaitą, kad rodytumėte diagramas.",
+    "lang.selectLabel": "Kalba",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Atidaryti CSV importą",
+    "btn.csv.close": "Uždaryti CSV importą",
+    "modal.title": "CSV importas",
+    "modal.close": "Uždaryti",
+    "form.fileLabel": "CSV failas",
+    "form.submit": "Įkelti ir rodyti",
+    "form.hint": "Formatas: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — skirtuvas kablataškis (;)",
+    "chart.axisDateTime": "Data ir laikas",
+    "chart.systolic": "Sistolinis (mmHg)",
+    "chart.diastolic": "Diastolinis (mmHg)",
+    "chart.pulse": "Pulsas (bpm)",
+    "readings.sl.one": "matavimas",
+    "readings.sl.few": "matavimai",
+    "readings.sl.many": "matavimai",
+    "readings.one": "matavimas",
+    "readings.other": "matavimai",
+    "err.emptyFile": "Failas tuščias.",
+    "err.csvMinLines": "CSV turi turėti antraštę ir bent vieną duomenų eilutę.",
+    "err.columns": "Trūksta tikėtinų stulpelių: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Neteisinga data/laikas eilutėje {row}: {detail}",
+    "err.badNumber": "Neteisingos skaitinės reikšmės eilutėje {row}.",
+    "err.noValidRows": "CSV nėra tinkamų matavimų.",
+    "err.noFile": "Pasirinkite CSV failą.",
+    "err.generic": "Klaida skaitant CSV."
+  },
+  "mt": {
+    "page.title": "Pressjoni tad-demm, polz u aggregati skont iż-żoni",
+    "subtitle.empty": "Tella' rapport CSV biex turi l-graffi.",
+    "lang.selectLabel": "Lingwa",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Iftaħ importazzjoni CSV",
+    "btn.csv.close": "Agħlaq importazzjoni CSV",
+    "modal.title": "Importa CSV",
+    "modal.close": "Agħlaq",
+    "form.fileLabel": "Fajl CSV",
+    "form.submit": "Ptax u uri",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — separatur semikolon (;)",
+    "chart.axisDateTime": "Data u ħin",
+    "chart.systolic": "Sistolika (mmHg)",
+    "chart.diastolic": "Diastolika (mmHg)",
+    "chart.pulse": "Polz (bpm)",
+    "readings.sl.one": "qari",
+    "readings.sl.few": "qrar",
+    "readings.sl.many": "qrar",
+    "readings.one": "qari",
+    "readings.other": "qrar",
+    "err.emptyFile": "Il-fajl vojt.",
+    "err.csvMinLines": "CSV għandu fih ras u mill-inqas linja waħda ta' data.",
+    "err.columns": "Kolonna mistennija nieqsa: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Data/ħin invalidu mal-linja {row}: {detail}",
+    "err.badNumber": "Valuri numeriċi invalidi mal-linja {row}.",
+    "err.noValidRows": "M'hemm l-ebda qari validu fil-CSV.",
+    "err.noFile": "Agħżel fajl CSV.",
+    "err.generic": "Żball waqt qari CSV."
+  },
+  "pl": {
+    "page.title": "Ciśnienie krwi, puls i agregaty wg stref",
+    "subtitle.empty": "Prześlij raport CSV, aby wyświetlić wykresy.",
+    "lang.selectLabel": "Język",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Otwórz import CSV",
+    "btn.csv.close": "Zamknij import CSV",
+    "modal.title": "Import CSV",
+    "modal.close": "Zamknij",
+    "form.fileLabel": "Plik CSV",
+    "form.submit": "Wczytaj i pokaż",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — separator średnik (;)",
+    "chart.axisDateTime": "Data i godzina",
+    "chart.systolic": "Skurczowe (mmHg)",
+    "chart.diastolic": "Rozkurczowe (mmHg)",
+    "chart.pulse": "Puls (bpm)",
+    "readings.sl.one": "pomiar",
+    "readings.sl.few": "pomiary",
+    "readings.sl.many": "pomiary",
+    "readings.one": "pomiar",
+    "readings.other": "pomiary",
+    "err.emptyFile": "Plik jest pusty.",
+    "err.csvMinLines": "CSV musi zawierać nagłówek i co najmniej jeden wiersz danych.",
+    "err.columns": "Brak oczekiwanych kolumn: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Nieprawidłowa data/godzina w wierszu {row}: {detail}",
+    "err.badNumber": "Nieprawidłowe wartości liczbowe w wierszu {row}.",
+    "err.noValidRows": "Brak prawidłowych pomiarów w CSV.",
+    "err.noFile": "Wybierz plik CSV.",
+    "err.generic": "Błąd odczytu CSV."
+  },
+  "pt": {
+    "page.title": "Tensão arterial, pulso e agregados por zona",
+    "subtitle.empty": "Carregue um relatório CSV para mostrar os gráficos.",
+    "lang.selectLabel": "Idioma",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Abrir importação CSV",
+    "btn.csv.close": "Fechar importação CSV",
+    "modal.title": "Importar CSV",
+    "modal.close": "Fechar",
+    "form.fileLabel": "Ficheiro CSV",
+    "form.submit": "Carregar e mostrar",
+    "form.hint": "Formato: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — separador ponto e vírgula (;)",
+    "chart.axisDateTime": "Data e hora",
+    "chart.systolic": "Sistólica (mmHg)",
+    "chart.diastolic": "Diastólica (mmHg)",
+    "chart.pulse": "Pulso (bpm)",
+    "readings.sl.one": "leitura",
+    "readings.sl.few": "leituras",
+    "readings.sl.many": "leituras",
+    "readings.one": "leitura",
+    "readings.other": "leituras",
+    "err.emptyFile": "O ficheiro está vazio.",
+    "err.csvMinLines": "O CSV tem de conter cabeçalho e pelo menos uma linha de dados.",
+    "err.columns": "Faltam colunas esperadas: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Data/hora inválida na linha {row}: {detail}",
+    "err.badNumber": "Valores numéricos inválidos na linha {row}.",
+    "err.noValidRows": "Sem leituras válidas no CSV.",
+    "err.noFile": "Escolha um ficheiro CSV.",
+    "err.generic": "Erro ao ler o CSV."
+  },
+  "ro": {
+    "page.title": "Tensiune arterială, puls și agregate pe zone",
+    "subtitle.empty": "Încărcați un raport CSV pentru a afișa graficele.",
+    "lang.selectLabel": "Limbă",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Deschide import CSV",
+    "btn.csv.close": "Închide import CSV",
+    "modal.title": "Import CSV",
+    "modal.close": "Închide",
+    "form.fileLabel": "Fișier CSV",
+    "form.submit": "Încarcă și afișează",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — separator punct și virgulă (;)",
+    "chart.axisDateTime": "Data și ora",
+    "chart.systolic": "Sistolică (mmHg)",
+    "chart.diastolic": "Diastolică (mmHg)",
+    "chart.pulse": "Puls (bpm)",
+    "readings.sl.one": "măsurătoare",
+    "readings.sl.few": "măsurători",
+    "readings.sl.many": "măsurători",
+    "readings.one": "măsurătoare",
+    "readings.other": "măsurători",
+    "err.emptyFile": "Fișierul este gol.",
+    "err.csvMinLines": "CSV trebuie să conțină antet și cel puțin un rând de date.",
+    "err.columns": "Lipsesc coloanele așteptate: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Dată/oră invalidă la rândul {row}: {detail}",
+    "err.badNumber": "Valori numerice invalide la rândul {row}.",
+    "err.noValidRows": "Nu există măsurători valide în CSV.",
+    "err.noFile": "Alegeți un fișier CSV.",
+    "err.generic": "Eroare la citirea CSV."
+  },
+  "sk": {
+    "page.title": "Krvný tlak, pulz a agregácie podľa zón",
+    "subtitle.empty": "Nahrajte CSV správu na zobrazenie grafov.",
+    "lang.selectLabel": "Jazyk",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Otvoriť import CSV",
+    "btn.csv.close": "Zavrieť import CSV",
+    "modal.title": "Import CSV",
+    "modal.close": "Zavrieť",
+    "form.fileLabel": "Súbor CSV",
+    "form.submit": "Načítať a zobraziť",
+    "form.hint": "Formát: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — oddeľovač bodkočiarka (;)",
+    "chart.axisDateTime": "Dátum a čas",
+    "chart.systolic": "Systolický (mmHg)",
+    "chart.diastolic": "Diastolický (mmHg)",
+    "chart.pulse": "Pulz (bpm)",
+    "readings.sl.one": "meranie",
+    "readings.sl.few": "merania",
+    "readings.sl.many": "merania",
+    "readings.one": "meranie",
+    "readings.other": "merania",
+    "err.emptyFile": "Súbor je prázdny.",
+    "err.csvMinLines": "CSV musí obsahovať hlavičku a aspoň jeden riadok údajov.",
+    "err.columns": "Chýbajú očakávané stĺpce: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Neplatný dátum/čas v riadku {row}: {detail}",
+    "err.badNumber": "Neplatné číselné hodnoty v riadku {row}.",
+    "err.noValidRows": "V CSV nie sú platné merania.",
+    "err.noFile": "Vyberte súbor CSV.",
+    "err.generic": "Chyba pri čítaní CSV."
+  },
+  "es": {
+    "page.title": "Tensión arterial, pulso y agregados por zona",
+    "subtitle.empty": "Suba un informe CSV para mostrar los gráficos.",
+    "lang.selectLabel": "Idioma",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Abrir importación CSV",
+    "btn.csv.close": "Cerrar importación CSV",
+    "modal.title": "Importar CSV",
+    "modal.close": "Cerrar",
+    "form.fileLabel": "Archivo CSV",
+    "form.submit": "Cargar y mostrar",
+    "form.hint": "Formato: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — separador punto y coma (;)",
+    "chart.axisDateTime": "Fecha y hora",
+    "chart.systolic": "Sistólica (mmHg)",
+    "chart.diastolic": "Diastólica (mmHg)",
+    "chart.pulse": "Pulso (lpm)",
+    "readings.sl.one": "medición",
+    "readings.sl.few": "mediciones",
+    "readings.sl.many": "mediciones",
+    "readings.one": "medición",
+    "readings.other": "mediciones",
+    "err.emptyFile": "El archivo está vacío.",
+    "err.csvMinLines": "El CSV debe contener cabecera y al menos una fila de datos.",
+    "err.columns": "Faltan columnas esperadas: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Fecha/hora no válida en la fila {row}: {detail}",
+    "err.badNumber": "Valores numéricos no válidos en la fila {row}.",
+    "err.noValidRows": "No hay mediciones válidas en el CSV.",
+    "err.noFile": "Elija un archivo CSV.",
+    "err.generic": "Error al leer el CSV."
+  },
+  "sv": {
+    "page.title": "Blodtryck, puls och tryckaggregationer per zon",
+    "subtitle.empty": "Ladda upp en CSV-rapport för att visa diagrammen.",
+    "lang.selectLabel": "Språk",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Öppna CSV-import",
+    "btn.csv.close": "Stäng CSV-import",
+    "modal.title": "Importera CSV",
+    "modal.close": "Stäng",
+    "form.fileLabel": "CSV-fil",
+    "form.submit": "Läs in och visa",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — avgränsare semikolon (;)",
+    "chart.axisDateTime": "Datum och tid",
+    "chart.systolic": "Systoliskt (mmHg)",
+    "chart.diastolic": "Diastoliskt (mmHg)",
+    "chart.pulse": "Puls (bpm)",
+    "readings.sl.one": "mätning",
+    "readings.sl.few": "mätningar",
+    "readings.sl.many": "mätningar",
+    "readings.one": "mätning",
+    "readings.other": "mätningar",
+    "err.emptyFile": "Filen är tom.",
+    "err.csvMinLines": "CSV måste innehålla rubrikrad och minst en datarad.",
+    "err.columns": "Saknade kolumner: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Ogiltigt datum/tid på rad {row}: {detail}",
+    "err.badNumber": "Ogiltiga numeriska värden på rad {row}.",
+    "err.noValidRows": "CSV innehåller inga giltiga mätningar.",
+    "err.noFile": "Välj en CSV-fil.",
+    "err.generic": "Fel vid läsning av CSV."
+  },
+  "ja": {
+    "page.title": "血圧、脈拍、ゾーン別集計",
+    "subtitle.empty": "グラフを表示するにはCSVレポートをアップロードしてください。",
+    "lang.selectLabel": "言語",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "CSVインポートを開く",
+    "btn.csv.close": "CSVインポートを閉じる",
+    "modal.title": "CSVのインポート",
+    "modal.close": "閉じる",
+    "form.fileLabel": "CSVファイル",
+    "form.submit": "読み込んで表示",
+    "form.hint": "書式: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — 区切りはセミコロン (;)",
+    "chart.axisDateTime": "日付と時刻",
+    "chart.systolic": "収縮期（mmHg）",
+    "chart.diastolic": "拡張期（mmHg）",
+    "chart.pulse": "脈拍（bpm）",
+    "readings.sl.one": "件",
+    "readings.sl.few": "件",
+    "readings.sl.many": "件",
+    "readings.one": "件",
+    "readings.other": "件",
+    "err.emptyFile": "ファイルが空です。",
+    "err.csvMinLines": "CSVにはヘッダーと少なくとも1行のデータが必要です。",
+    "err.columns": "必要な列がありません: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm)。",
+    "err.badDateTime": "{row}行目の日付/時刻が無効です: {detail}",
+    "err.badNumber": "{row}行目の数値が無効です。",
+    "err.noValidRows": "CSVに有効な測定値がありません。",
+    "err.noFile": "CSVファイルを選択してください。",
+    "err.generic": "CSVの読み込みエラー。"
+  },
+  "no": {
+    "page.title": "Blodtrykk, puls og sonaggregat",
+    "subtitle.empty": "Last opp en CSV-rapport for å vise grafene.",
+    "lang.selectLabel": "Språk",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Åpne CSV-import",
+    "btn.csv.close": "Lukk CSV-import",
+    "modal.title": "Importer CSV",
+    "modal.close": "Lukk",
+    "form.fileLabel": "CSV-fil",
+    "form.submit": "Last inn og vis",
+    "form.hint": "Format: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — skilletegn semikolon (;)",
+    "chart.axisDateTime": "Dato og tid",
+    "chart.systolic": "Systolisk (mmHg)",
+    "chart.diastolic": "Diastolisk (mmHg)",
+    "chart.pulse": "Puls (bpm)",
+    "readings.sl.one": "måling",
+    "readings.sl.few": "målinger",
+    "readings.sl.many": "målinger",
+    "readings.one": "måling",
+    "readings.other": "målinger",
+    "err.emptyFile": "Filen er tom.",
+    "err.csvMinLines": "CSV må inneholde overskrift og minst én datarad.",
+    "err.columns": "Mangler forventede kolonner: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Ugyldig dato/tid på rad {row}: {detail}",
+    "err.badNumber": "Ugyldige numeriske verdier på rad {row}.",
+    "err.noValidRows": "Ingen gyldige målinger i CSV.",
+    "err.noFile": "Velg en CSV-fil.",
+    "err.generic": "Feil ved lesing av CSV."
+  },
+  "uk": {
+    "page.title": "Артеріальний тиск, пульс і агрегати за зонами",
+    "subtitle.empty": "Завантажте CSV-звіт, щоб показати графіки.",
+    "lang.selectLabel": "Мова",
+    "btn.csv.label": "CSV",
+    "btn.csv.open": "Відкрити імпорт CSV",
+    "btn.csv.close": "Закрити імпорт CSV",
+    "modal.title": "Імпорт CSV",
+    "modal.close": "Закрити",
+    "form.fileLabel": "Файл CSV",
+    "form.submit": "Завантажити й показати",
+    "form.hint": "Формат: Date;Time;Systolic (mmHg);Diastolic (mmHg);Pulse (bpm) — роздільник крапка з комою (;)",
+    "chart.axisDateTime": "Дата й час",
+    "chart.systolic": "Систолічний (мм рт. ст.)",
+    "chart.diastolic": "Діастолічний (мм рт. ст.)",
+    "chart.pulse": "Пульс (уд/хв)",
+    "readings.sl.one": "вимірювання",
+    "readings.sl.few": "вимірювань",
+    "readings.sl.many": "вимірювань",
+    "readings.one": "вимірювання",
+    "readings.other": "вимірювань",
+    "err.emptyFile": "Файл порожній.",
+    "err.csvMinLines": "CSV має містити заголовок і принаймні один рядок даних.",
+    "err.columns": "Відсутні очікувані стовпці: Date, Time, Systolic (mmHg), Diastolic (mmHg), Pulse (bpm).",
+    "err.badDateTime": "Неприпустима дата/час у рядку {row}: {detail}",
+    "err.badNumber": "Неприпустимі числові значення в рядку {row}.",
+    "err.noValidRows": "У CSV немає дійсних вимірювань.",
+    "err.noFile": "Оберіть файл CSV.",
+    "err.generic": "Помилка читання CSV."
+  }
+};
+
+    /** BCP 47 locale for Intl (date/number formatting). */
+    const LOCALE_BY_LANG = {
+      bg: "bg-BG", hr: "hr-HR", cs: "cs-CZ", da: "da-DK", nl: "nl-NL", et: "et-EE", fi: "fi-FI",
+      fr: "fr-FR", de: "de-DE", el: "el-GR", ga: "ga-IE", hu: "hu-HU", it: "it-IT", lv: "lv-LV",
+      lt: "lt-LT", mt: "mt-MT", pl: "pl-PL", pt: "pt-PT", ro: "ro-RO", sk: "sk-SK", sl: "sl-SI",
+      es: "es-ES", sv: "sv-SE", en: "en-GB", ja: "ja-JP", no: "nb-NO", uk: "uk-UA",
+    };
+
+    const SUPPORTED_LANGS = new Set(["bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr", "hu", "it", "ja", "lt", "lv", "mt", "nl", "no", "pl", "pt", "ro", "sk", "sl", "sv", "uk"]);
+
+    /** Native names for the language dropdown (ISO 639-1 keys; no → Bokmål UI locale). */
+    const LANG_OPTION_LABELS = {
+      bg: "Български",
+      hr: "Hrvatski",
+      cs: "Čeština",
+      da: "Dansk",
+      nl: "Nederlands",
+      et: "Eesti",
+      fi: "Suomi",
+      fr: "Français",
+      de: "Deutsch",
+      el: "Ελληνικά",
+      ga: "Gaeilge",
+      hu: "Magyar",
+      it: "Italiano",
+      lv: "Latviešu",
+      lt: "Lietuvių",
+      mt: "Malti",
+      pl: "Polski",
+      pt: "Português",
+      ro: "Română",
+      sk: "Slovenčina",
+      sl: "Slovenščina",
+      es: "Español",
+      sv: "Svenska",
+      en: "English",
+      ja: "日本語",
+      no: "Norsk",
+      uk: "Українська",
+    };
+
+    function fillLangSelect() {
+      const sel = document.getElementById("langSelect");
+      if (!sel) return;
+      sel.replaceChildren();
+      for (const code of [...SUPPORTED_LANGS].sort()) {
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = LANG_OPTION_LABELS[code] || code.toUpperCase();
+        sel.appendChild(opt);
+      }
+      if (SUPPORTED_LANGS.has(currentLang)) sel.value = currentLang;
+    }
+
+    function detectBrowserLang() {
+      const list = navigator.languages?.length ? navigator.languages : [navigator.language || "sl-SI"];
+      for (const c of list) {
+        const base = String(c || "").trim().toLowerCase().split(/[-_]/)[0] || "";
+        if (base === "no" || base === "nb" || base === "nn") {
+          if (SUPPORTED_LANGS.has("no")) return "no";
+        } else if (SUPPORTED_LANGS.has(base)) {
+          return base;
+        }
+      }
+      return "sl";
+    }
+
+    function normalizeLang(raw) {
+      const s = String(raw || "").trim().toLowerCase();
+      let base = s.split(/[-_]/)[0] || "";
+      if (base === "nb" || base === "nn") base = "no";
+      if (SUPPORTED_LANGS.has(base)) return base;
+      return null;
+    }
+
+    let currentLang = normalizeLang(detectBrowserLang()) || "sl";
+
+    function t(key, params = {}) {
+      const pack = TRANSLATIONS[currentLang] || TRANSLATIONS.sl;
+      let s = pack[key] ?? TRANSLATIONS.sl[key] ?? key;
+      for (const [k, v] of Object.entries(params)) {
+        s = s.split(`{${k}}`).join(String(v));
+      }
+      return s;
+    }
+
+    function localeTag() {
+      return LOCALE_BY_LANG[currentLang] || LOCALE_BY_LANG.sl;
+    }
+
+    function formatDateLong(date) {
+      return new Intl.DateTimeFormat(localeTag(), {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(date);
+    }
+
+    function formatChartAxisLabel(date) {
+      return new Intl.DateTimeFormat(localeTag(), {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(date);
+    }
+
+    function readingsWord(count) {
+      if (currentLang === "sl") {
+        if (count === 1) return t("readings.sl.one");
+        if (count >= 2 && count <= 4) return t("readings.sl.few");
+        return t("readings.sl.many");
+      }
+      return count === 1 ? t("readings.one") : t("readings.other");
+    }
+
+    function aggregateTooltipLabel(count) {
+      const n = Math.round(count);
+      return ` ${n} ${readingsWord(n)}`;
+    }
+
+    /** Apply translations to all elements carrying data-i18n under root (default: whole document). */
+    function applyDataI18nNodes(root) {
+      const scope = root || document;
+      scope.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (!key) return;
+        const attr = el.getAttribute("data-i18n-attr");
+        if (attr) {
+          el.setAttribute(attr, t(key));
+        } else {
+          el.textContent = t(key);
+        }
+      });
+    }
+
+    function applyI18nDom() {
+      document.title = t("page.title");
+      document.documentElement.lang = currentLang === "no" ? "nb" : currentLang;
+      applyDataI18nNodes(document);
+      if (lastParsedData) {
+        updateSubtitle(lastParsedData);
+      }
+      syncCsvButtonTitle();
+    }
+
+    function setLanguage(raw) {
+      const lang = normalizeLang(raw);
+      if (!lang || !TRANSLATIONS[lang]) {
+        const sel = document.getElementById("langSelect");
+        if (sel) sel.value = currentLang;
+        return;
+      }
+      currentLang = lang;
+      const sel = document.getElementById("langSelect");
+      if (sel) sel.value = lang;
+      applyI18nDom();
+      if (mainChart && lastParsedData) {
+        renderCharts(lastParsedData);
+      }
+    }
+
+    let mainChart = null;
+    let systolicAggChart = null;
+    let diastolicAggChart = null;
+    let lastParsedData = null;
+
+    const subtitleEl = document.getElementById("subtitle");
+    const chartsSection = document.getElementById("chartsSection");
+    const uploadError = document.getElementById("uploadError");
+    const csvModal = document.getElementById("csvModal");
+    const csvModalPanel = csvModal.querySelector(".csv-modal-panel");
+    const csvModalClose = document.getElementById("csvModalClose");
+    const uploadForm = document.getElementById("csvUploadForm");
+    const csvFileInput = document.getElementById("csvFile");
+    const toggleFormBtn = document.getElementById("toggleFormBtn");
+    const langSelect = document.getElementById("langSelect");
+    fillLangSelect();
+
+    function syncCsvButtonTitle() {
+      const hidden = csvModal.classList.contains("hidden");
+      toggleFormBtn.title = hidden ? t("btn.csv.open") : t("btn.csv.close");
+    }
+
+    function openCsvModal() {
+      applyDataI18nNodes(csvModal);
+      csvModal.classList.remove("hidden");
+      csvModal.setAttribute("aria-hidden", "false");
+      toggleFormBtn.setAttribute("aria-expanded", "true");
+      syncCsvButtonTitle();
+      csvFileInput.focus();
+    }
+
+    function closeCsvModal() {
+      csvModal.classList.add("hidden");
+      csvModal.setAttribute("aria-hidden", "true");
+      toggleFormBtn.setAttribute("aria-expanded", "false");
+      syncCsvButtonTitle();
+      toggleFormBtn.focus();
+    }
+
+    toggleFormBtn.addEventListener("click", () => {
+      if (csvModal.classList.contains("hidden")) openCsvModal();
+      else closeCsvModal();
+    });
+
+    csvModalClose.addEventListener("click", closeCsvModal);
+
+    csvModal.addEventListener("click", (e) => {
+      if (e.target === csvModal) closeCsvModal();
+    });
+
+    csvModalPanel.addEventListener("click", (e) => e.stopPropagation());
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !csvModal.classList.contains("hidden")) closeCsvModal();
+    });
+
+    langSelect.addEventListener("change", (e) => setLanguage(e.target.value));
+
+    function showError(message) {
+      uploadError.textContent = message;
+      uploadError.classList.remove("hidden");
+    }
+
+    function clearError() {
+      uploadError.textContent = "";
+      uploadError.classList.add("hidden");
+    }
+
+    function parseCsv(text) {
+      const cleaned = text.replace(/^\uFEFF/, "").trim();
+      if (!cleaned) throw { i18nKey: "err.emptyFile" };
+
+      const lines = cleaned.split(/\r?\n/);
+      if (lines.length < 2) throw { i18nKey: "err.csvMinLines" };
+
+      const delimiter = lines[0].includes(";") ? ";" : ",";
+      const header = lines[0].split(delimiter).map((h) => h.trim());
+
+      const col = {
+        date: header.findIndex((h) => /^date$/i.test(h)),
+        time: header.findIndex((h) => /^time$/i.test(h)),
+        systolic: header.findIndex((h) => /systolic/i.test(h)),
+        diastolic: header.findIndex((h) => /diastolic/i.test(h)),
+        pulse: header.findIndex((h) => /pulse/i.test(h)),
+      };
+
+      if (col.date < 0 || col.time < 0 || col.systolic < 0 || col.diastolic < 0 || col.pulse < 0) {
+        throw { i18nKey: "err.columns" };
+      }
+
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const parts = line.split(delimiter).map((p) => p.trim());
+        if (parts.length < 5) continue;
+
+        const dateStr = parts[col.date];
+        const timeStr = parts[col.time];
+        const datetime = new Date(`${dateStr} ${timeStr}`);
+        if (Number.isNaN(datetime.getTime())) {
+          throw { i18nKey: "err.badDateTime", params: { row: i + 1, detail: `${dateStr} ${timeStr}` } };
+        }
+
+        const systolic = Number(parts[col.systolic]);
+        const diastolic = Number(parts[col.diastolic]);
+        const pulse = Number(parts[col.pulse]);
+        if ([systolic, diastolic, pulse].some((n) => Number.isNaN(n))) {
+          throw { i18nKey: "err.badNumber", params: { row: i + 1 } };
+        }
+
+        rows.push({ datetime, systolic, diastolic, pulse });
+      }
+
+      if (rows.length === 0) throw { i18nKey: "err.noValidRows" };
+      rows.sort((a, b) => a.datetime - b.datetime);
+      return rows;
+    }
+
+    function updateSubtitle(data) {
+      const first = data[0].datetime;
+      const last = data[data.length - 1].datetime;
+      const count = data.length;
+      subtitleEl.textContent = `${formatDateLong(first)} – ${formatDateLong(last)}, ${count} ${readingsWord(count)}`;
+    }
+
+    function destroyCharts() {
+      [mainChart, systolicAggChart, diastolicAggChart].forEach((chart) => chart?.destroy());
+      mainChart = systolicAggChart = diastolicAggChart = null;
+    }
+
+    const zoneColors = {
+      green: "rgba(34, 197, 94, 0.18)",
+      brown: "rgba(250, 204, 21, 0.18)",
+      orange: "rgba(249, 115, 22, 0.18)",
+      red: "rgba(239, 68, 68, 0.18)",
+    };
+
+    function mmHgZone(id, yMin, yMax, color) {
+      return {
+        type: "box",
+        yScaleID: "yMmHg",
+        yMin,
+        yMax,
+        backgroundColor: color,
+        borderWidth: 0,
+        drawTime: "beforeDatasetsDraw",
+      };
+    }
+
+    const pressureZones = {
+      dGreen: mmHgZone("dGreen", 80, 85, zoneColors.green),
+      dBrown: mmHgZone("dBrown", 85, 90, zoneColors.brown),
+      dOrange: mmHgZone("dOrange", 90, 100, zoneColors.orange),
+      dRed: mmHgZone("dRed", 100, 110, zoneColors.red),
+      sGreen: mmHgZone("sGreen", 120, 130, zoneColors.green),
+      sBrown: mmHgZone("sBrown", 130, 140, zoneColors.brown),
+      sOrange: mmHgZone("sOrange", 140, 160, zoneColors.orange),
+      sRed: mmHgZone("sRed", 160, 180, zoneColors.red),
+    };
+
+    const pointPalette = {
+      green: "#22c55e",
+      brown: "#eab308",
+      orange: "#f97316",
+      red: "#ef4444",
+      neutral: "#94a3b8",
+    };
+
+    const bucketColors = [
+      pointPalette.neutral,
+      pointPalette.green,
+      pointPalette.brown,
+      pointPalette.orange,
+      pointPalette.red,
+    ];
+
+    const systolicZoneLabels = ["<120", "120–130", "131–140", "141–160", ">160"];
+    const diastolicZoneLabels = ["<80", "80–85", "86–89", "90–99", "≥100"];
+
+    /** Same visual width for Y labels on both aggregate charts (monospace + pad). */
+    const AGG_ZONE_LABEL_MAX_CHARS = Math.max(
+      ...systolicZoneLabels.map((s) => [...s].length),
+      ...diastolicZoneLabels.map((s) => [...s].length),
+    );
+
+    function padAggregateZoneLabels(labels) {
+      return labels.map((s) => {
+        const n = [...s].length;
+        if (n >= AGG_ZONE_LABEL_MAX_CHARS) return s;
+        return s + "\u2007".repeat(AGG_ZONE_LABEL_MAX_CHARS - n);
+      });
+    }
+
+    const systolicZoneLabelsPadded = padAggregateZoneLabels(systolicZoneLabels);
+    const diastolicZoneLabelsPadded = padAggregateZoneLabels(diastolicZoneLabels);
+
+    const AGG_Y_TICK_FONT = {
+      size: 11,
+      family: "ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace",
+    };
+
+    function bucketSystolic(v) {
+      if (v <= 130) return 1;
+      if (v <= 140) return 2;
+      if (v <= 160) return 3;
+      return 4;
+    }
+
+    function bucketDiastolic(v) {
+      if (v < 80) return 0;
+      if (v <= 85) return 1;
+      if (v <= 89) return 2;
+      if (v < 100) return 3;
+      return 4;
+    }
+
+    function countByBucket(values, bucketFn) {
+      const counts = [0, 0, 0, 0, 0];
+      for (const v of values) counts[bucketFn(v)] += 1;
+      return counts;
+    }
+
+    function colorForBucket(v, bucketFn) {
+      return bucketColors[bucketFn(v)];
+    }
+
+    function createAggregateBarChart(canvasId, data, zoneLabels, hideXLabels = false) {
+      return new Chart(document.getElementById(canvasId), {
+        type: "bar",
+        data: {
+          labels: zoneLabels,
+          datasets: [{
+            data,
+            backgroundColor: bucketColors,
+            borderColor: bucketColors,
+            borderWidth: 1,
+            maxBarThickness: 14,
+            categoryPercentage: 0.55,
+            barPercentage: 0.85,
+          }],
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2.8,
+          layout: {
+            padding: { top: 0, right: 6, bottom: 0, left: 0 },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const chart = items[0]?.chart;
+                  const idx = items[0]?.dataIndex;
+                  if (chart && idx != null) {
+                    const raw = chart.data.labels[idx];
+                    if (typeof raw === "string") {
+                      return raw.replace(/\u2007+$/g, "").trimEnd();
+                    }
+                  }
+                  return items[0]?.label ?? "";
+                },
+                label: (ctx) => aggregateTooltipLabel(ctx.parsed.x),
+              },
+            },
+          },
+          scales: {
+            x: {
+              min: 0,
+              max: 70,
+              title: { display: false },
+              ticks: {
+                display: !hideXLabels,
+                padding: 0,
+                stepSize: 5,
+                precision: 0,
+                callback: (value) => {
+                  if (hideXLabels) return "";
+                  const n = Number(value);
+                  const rounded = Math.round(n);
+                  return Math.abs(n - rounded) < 1e-9 ? rounded : "";
+                },
+              },
+            },
+            y: {
+              reverse: true,
+              ticks: {
+                autoSkip: false,
+                padding: 4,
+                font: AGG_Y_TICK_FONT,
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function renderCharts(data) {
+      destroyCharts();
+
+      const labels = data.map((d) => formatChartAxisLabel(d.datetime));
+      const systolic = data.map((d) => d.systolic);
+      const diastolic = data.map((d) => d.diastolic);
+      const pulse = data.map((d) => d.pulse);
+
+      const systolicPointColors = systolic.map((v) => colorForBucket(v, bucketSystolic));
+      const diastolicPointColors = diastolic.map((v) => colorForBucket(v, bucketDiastolic));
+      const systolicAggregate = countByBucket(systolic, bucketSystolic);
+      const diastolicAggregate = countByBucket(diastolic, bucketDiastolic);
+
+      const ctx = document.getElementById("chart").getContext("2d");
+      mainChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: t("chart.systolic"),
+              data: systolic,
+              borderColor: "#0f172a",
+              backgroundColor: "rgba(15, 23, 42, 0.08)",
+              borderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 8,
+              pointBackgroundColor: systolicPointColors,
+              pointBorderColor: "#ffffff",
+              pointBorderWidth: 2,
+              pointHoverBackgroundColor: systolicPointColors,
+              pointHoverBorderColor: "#ffffff",
+              tension: 0.15,
+              yAxisID: "yMmHg",
+            },
+            {
+              label: t("chart.diastolic"),
+              data: diastolic,
+              borderColor: "#0f172a",
+              backgroundColor: "rgba(15, 23, 42, 0.08)",
+              borderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 8,
+              pointBackgroundColor: diastolicPointColors,
+              pointBorderColor: "#ffffff",
+              pointBorderWidth: 2,
+              pointHoverBackgroundColor: diastolicPointColors,
+              pointHoverBorderColor: "#ffffff",
+              tension: 0.15,
+              yAxisID: "yMmHg",
+            },
+            {
+              label: t("chart.pulse"),
+              data: pulse,
+              borderColor: "#16a34a",
+              backgroundColor: "rgba(22, 163, 74, 0.08)",
+              borderWidth: 2,
+              pointRadius: 2,
+              pointHoverRadius: 5,
+              tension: 0.15,
+              yAxisID: "yBpm",
+              borderDash: [6, 3],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2.2,
+          interaction: {
+            mode: "index",
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                usePointStyle: true,
+                padding: 16,
+                generateLabels(chart) {
+                  const items = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                  return items.map((item, i) => {
+                    if (i === 0 || i === 1) {
+                      item.fillStyle = "#9ca3af";
+                      item.strokeStyle = "#9ca3af";
+                    }
+                    return item;
+                  });
+                },
+              },
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => items[0].label,
+              },
+            },
+            annotation: {
+              annotations: pressureZones,
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: t("chart.axisDateTime"),
+                font: { weight: "600" },
+              },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 45,
+                autoSkip: true,
+                maxTicksLimit: 20,
+              },
+            },
+            yMmHg: {
+              type: "linear",
+              position: "left",
+              title: {
+                display: true,
+                text: "mmHg",
+                font: { weight: "600" },
+                color: "#64748b",
+              },
+              min: 60,
+              max: 180,
+              grid: { color: "rgba(0,0,0,0.06)" },
+            },
+            yBpm: {
+              type: "linear",
+              position: "right",
+              title: {
+                display: true,
+                text: "bpm",
+                font: { weight: "600" },
+                color: "#16a34a",
+              },
+              min: 50,
+              max: 100,
+              grid: { drawOnChartArea: false },
+            },
+          },
+        },
+      });
+
+      systolicAggChart = createAggregateBarChart("chartSystolicAgg", systolicAggregate, systolicZoneLabelsPadded, true);
+      diastolicAggChart = createAggregateBarChart("chartDiastolicAgg", diastolicAggregate, diastolicZoneLabelsPadded);
+      chartsSection.classList.remove("hidden");
+    }
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const file = csvFileInput.files?.[0];
+      if (!file) {
+        showError(t("err.noFile"));
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        const data = parseCsv(text);
+        lastParsedData = data;
+        updateSubtitle(data);
+        renderCharts(data);
+        closeCsvModal();
+      } catch (err) {
+        lastParsedData = null;
+        chartsSection.classList.add("hidden");
+        destroyCharts();
+        const msg = err?.i18nKey ? t(err.i18nKey, err.params || {}) : (err?.message || t("err.generic"));
+        showError(msg);
+      }
+    });
+
+    applyI18nDom();
+  </script>
+</body>
+</html>
