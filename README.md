@@ -10,9 +10,15 @@ Single-page web app that turns a blood pressure export CSV into charts you can e
 - **Many languages**: the interface is available in all official EU languages, plus Japanese, Norwegian, and Ukrainian. **The language is chosen automatically** from your browser settings when possible; you can still switch it manually from the language menu in the header.
 - **Translations are not professionally verified.** If you spot errors or awkward wording, **pull requests are very welcome**—small fixes are especially helpful.
 
+<img src="./screenshot.webp" width="100%" height="auto">
+
+> Screenshot of the app. Data for the chart is random generated. See source file `sample-data.csv` in this repository.
+
 ## Usage
 
-1. Open `blood-pressure-chart.html` in a modern desktop or mobile browser (the page loads Chart.js from a CDN, so an internet connection is required on first load).
+1. Open the app.
+  - The app is available online at: [markodvornik.github.io/omron-charts](https://markodvornik.github.io/omron-charts/).
+  - To use it offline download `index.html` file on your computer and open it in a modern desktop or mobile browser (the page loads Chart.js from a CDN, so an internet connection is required on first load).
 2. Use the **CSV** control to open the import panel, choose your export file, then **load** it. Expected columns (header row) include: `Date`, `Time`, `Systolic (mmHg)`, `Diastolic (mmHg)`, and `Pulse (bpm)`. The expected separator in the template is a **semicolon (`;`)**; other common delimiters may be detected when the header clearly matches.
 3. If something is wrong with the file (missing columns, bad dates, empty file), the app shows a short error message keyed to the current language.
 4. Use your **browser zoom** or window width if you need larger text or a wider chart area; the layout is responsive.
