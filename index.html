@@ -115,7 +115,10 @@
     }
     .analysis-actions {
       display: flex;
+      align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
       margin-top: 16px;
     }
     .analysis-toggle {
@@ -143,6 +146,46 @@
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
     }
     .analysis-toggle button:focus-visible {
+      outline: 2px solid #0f172a;
+      outline-offset: 2px;
+    }
+    .analysis-threshold-form {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .analysis-threshold-form label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .analysis-threshold-form input {
+      width: 72px;
+      min-height: 34px;
+      padding: 0 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      color: #0f172a;
+      font: inherit;
+    }
+    .analysis-threshold-form button {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      color: #0f172a;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .analysis-threshold-form input:focus-visible,
+    .analysis-threshold-form button:focus-visible {
       outline: 2px solid #0f172a;
       outline-offset: 2px;
     }
@@ -365,6 +408,17 @@
         <button type="button" data-analysis-mode="granual" aria-pressed="true" data-i18n="analysis.granual">Podroben</button>
         <button type="button" data-analysis-mode="simplified" aria-pressed="false" data-i18n="analysis.simplified">Poenostavljen</button>
       </div>
+      <form id="analysisThresholdForm" class="analysis-threshold-form hidden">
+        <label>
+          <span data-i18n="analysis.lowerLimit">Spodnji prag</span>
+          <input id="diastolicThresholdInput" type="number" min="70" max="90" step="1" value="85" required />
+        </label>
+        <label>
+          <span data-i18n="analysis.upperLimit">Zgornji prag</span>
+          <input id="systolicThresholdInput" type="number" min="120" max="150" step="1" value="135" required />
+        </label>
+        <button type="submit" data-i18n="analysis.apply">OK</button>
+      </form>
     </div>
     <div id="chartActions" class="chart-actions hidden">
       <button
@@ -429,6 +483,9 @@
     "analysis.simplified": "Poenostavljen",
     "analysis.normal": "Normalno",
     "analysis.abnormal": "Povišano",
+    "analysis.lowerLimit": "Spodnji prag",
+    "analysis.upperLimit": "Zgornji prag",
+    "analysis.apply": "OK",
     "readings.sl.one": "odčitek",
     "readings.sl.few": "odčitki",
     "readings.sl.many": "odčitkov",
@@ -465,6 +522,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.one": "reading",
     "readings.other": "readings",
     "err.emptyFile": "The file is empty.",
@@ -498,6 +558,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "измерване",
     "readings.sl.few": "измервания",
     "readings.sl.many": "измервания",
@@ -534,6 +597,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "odčitak",
     "readings.sl.few": "odčitaka",
     "readings.sl.many": "odčitaka",
@@ -570,6 +636,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "měření",
     "readings.sl.few": "měření",
     "readings.sl.many": "měření",
@@ -606,6 +675,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "aflæsning",
     "readings.sl.few": "aflæsninger",
     "readings.sl.many": "aflæsninger",
@@ -642,6 +714,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "meting",
     "readings.sl.few": "metingen",
     "readings.sl.many": "metingen",
@@ -678,6 +753,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "mõõtmine",
     "readings.sl.few": "mõõtmist",
     "readings.sl.many": "mõõtmist",
@@ -714,6 +792,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "mittaus",
     "readings.sl.few": "mittausta",
     "readings.sl.many": "mittausta",
@@ -750,6 +831,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "mesure",
     "readings.sl.few": "mesures",
     "readings.sl.many": "mesures",
@@ -786,6 +870,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "Messung",
     "readings.sl.few": "Messungen",
     "readings.sl.many": "Messungen",
@@ -822,6 +909,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "μέτρηση",
     "readings.sl.few": "μετρήσεις",
     "readings.sl.many": "μετρήσεις",
@@ -858,6 +948,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "mérés",
     "readings.sl.few": "mérés",
     "readings.sl.many": "mérés",
@@ -894,6 +987,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "léamh",
     "readings.sl.few": "léamhanna",
     "readings.sl.many": "léamhanna",
@@ -930,6 +1026,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "misura",
     "readings.sl.few": "misure",
     "readings.sl.many": "misure",
@@ -966,6 +1065,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "mērījums",
     "readings.sl.few": "mērījumi",
     "readings.sl.many": "mērījumi",
@@ -1002,6 +1104,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "matavimas",
     "readings.sl.few": "matavimai",
     "readings.sl.many": "matavimai",
@@ -1038,6 +1143,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "qari",
     "readings.sl.few": "qrar",
     "readings.sl.many": "qrar",
@@ -1074,6 +1182,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "pomiar",
     "readings.sl.few": "pomiary",
     "readings.sl.many": "pomiary",
@@ -1110,6 +1221,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "leitura",
     "readings.sl.few": "leituras",
     "readings.sl.many": "leituras",
@@ -1146,6 +1260,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "măsurătoare",
     "readings.sl.few": "măsurători",
     "readings.sl.many": "măsurători",
@@ -1182,6 +1299,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "meranie",
     "readings.sl.few": "merania",
     "readings.sl.many": "merania",
@@ -1218,6 +1338,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "medición",
     "readings.sl.few": "mediciones",
     "readings.sl.many": "mediciones",
@@ -1254,6 +1377,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "mätning",
     "readings.sl.few": "mätningar",
     "readings.sl.many": "mätningar",
@@ -1290,6 +1416,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "件",
     "readings.sl.few": "件",
     "readings.sl.many": "件",
@@ -1326,6 +1455,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "måling",
     "readings.sl.few": "målinger",
     "readings.sl.many": "målinger",
@@ -1362,6 +1494,9 @@
     "analysis.simplified": "Simplified",
     "analysis.normal": "Normal",
     "analysis.abnormal": "Abnormal",
+    "analysis.lowerLimit": "Lower limit",
+    "analysis.upperLimit": "Upper limit",
+    "analysis.apply": "OK",
     "readings.sl.one": "вимірювання",
     "readings.sl.few": "вимірювань",
     "readings.sl.many": "вимірювань",
@@ -1544,11 +1679,15 @@
     let diastolicAggChart = null;
     let lastParsedData = null;
     let selectedAnalysisMode = "granual";
+    let simplifiedThresholds = { diastolic: 85, systolic: 135 };
 
     const subtitleEl = document.getElementById("subtitle");
     const chartsSection = document.getElementById("chartsSection");
     const analysisActions = document.getElementById("analysisActions");
     const analysisButtons = Array.from(document.querySelectorAll("[data-analysis-mode]"));
+    const analysisThresholdForm = document.getElementById("analysisThresholdForm");
+    const diastolicThresholdInput = document.getElementById("diastolicThresholdInput");
+    const systolicThresholdInput = document.getElementById("systolicThresholdInput");
     const chartActions = document.getElementById("chartActions");
     const uploadError = document.getElementById("uploadError");
     const csvModal = document.getElementById("csvModal");
@@ -1565,6 +1704,9 @@
       analysisButtons.forEach((button) => {
         button.setAttribute("aria-pressed", String(button.dataset.analysisMode === selectedAnalysisMode));
       });
+      analysisThresholdForm.classList.toggle("hidden", selectedAnalysisMode !== "simplified");
+      diastolicThresholdInput.value = String(simplifiedThresholds.diastolic);
+      systolicThresholdInput.value = String(simplifiedThresholds.systolic);
     }
 
     function syncUploadAction() {
@@ -1606,6 +1748,26 @@
         syncAnalysisButtons();
         if (lastParsedData) renderCharts(lastParsedData);
       });
+    });
+
+    analysisThresholdForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const diastolic = Number(diastolicThresholdInput.value);
+      const systolic = Number(systolicThresholdInput.value);
+      const valid = Number.isFinite(diastolic)
+        && Number.isFinite(systolic)
+        && diastolic >= 70
+        && diastolic <= 90
+        && systolic >= 120
+        && systolic <= 150;
+
+      if (!valid) {
+        analysisThresholdForm.reportValidity();
+        return;
+      }
+
+      simplifiedThresholds = { diastolic, systolic };
+      if (lastParsedData && selectedAnalysisMode === "simplified") renderCharts(lastParsedData);
     });
 
     csvModalClose.addEventListener("click", closeCsvModal);
@@ -1780,6 +1942,23 @@
       },
     };
 
+    function getSelectedAnalysis() {
+      if (selectedAnalysisMode !== "simplified") return ANALYSIS_MODES.granual;
+      return {
+        ...ANALYSIS_MODES.simplified,
+        pressureZones: {
+          dAbnormal: mmHgZone("dAbnormal", simplifiedThresholds.diastolic, 110, zoneColors.yellow),
+          sAbnormal: mmHgZone("sAbnormal", simplifiedThresholds.systolic, 180, zoneColors.yellow),
+        },
+        bucketSystolic(v) {
+          return v < simplifiedThresholds.systolic ? 0 : 1;
+        },
+        bucketDiastolic(v) {
+          return v < simplifiedThresholds.diastolic ? 0 : 1;
+        },
+      };
+    }
+
     function padAggregateZoneLabels(labels, maxChars) {
       return labels.map((s) => {
         const n = [...s].length;
@@ -1906,7 +2085,7 @@
     function renderCharts(data) {
       destroyCharts();
 
-      const analysis = ANALYSIS_MODES[selectedAnalysisMode] || ANALYSIS_MODES.granual;
+      const analysis = getSelectedAnalysis();
       const bucketCount = analysis.colors.length;
       const aggregateLabels = padAggregateLabelPair(analysis.systolicLabels(), analysis.diastolicLabels());
       const labels = data.map((d) => formatChartAxisLabel(d.datetime));
