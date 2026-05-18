@@ -113,9 +113,42 @@
       background: #fff;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     }
+    .analysis-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .analysis-toggle {
+      display: inline-flex;
+      padding: 3px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      gap: 2px;
+    }
+    .analysis-toggle button {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .analysis-toggle button[aria-pressed="true"] {
+      background: #fff;
+      color: #0f172a;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+    .analysis-toggle button:focus-visible {
+      outline: 2px solid #0f172a;
+      outline-offset: 2px;
+    }
     .charts-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(280px, 32%);
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 24%);
       gap: 20px;
       align-items: center;
     }
@@ -291,6 +324,7 @@
 
     @media print {
       .csv-modal,
+      button,
       .page-menu-btn,
       .lang-select {
         display: none !important;
@@ -324,6 +358,12 @@
             <canvas id="chartDiastolicAgg"></canvas>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="analysisActions" class="analysis-actions hidden" role="group" data-i18n-attr="aria-label" data-i18n="analysis.groupLabel" aria-label="Vrsta analize">
+      <div class="analysis-toggle">
+        <button type="button" data-analysis-mode="granual" aria-pressed="true" data-i18n="analysis.granual">Podroben</button>
+        <button type="button" data-analysis-mode="simplified" aria-pressed="false" data-i18n="analysis.simplified">Poenostavljen</button>
       </div>
     </div>
     <div id="chartActions" class="chart-actions hidden">
@@ -384,6 +424,11 @@
     "chart.systolic": "Sistolični (mmHg)",
     "chart.diastolic": "Diastolični (mmHg)",
     "chart.pulse": "Utrip (bpm)",
+    "analysis.groupLabel": "Vrsta analize",
+    "analysis.granual": "Podroben",
+    "analysis.simplified": "Poenostavljen",
+    "analysis.normal": "Normalno",
+    "analysis.abnormal": "Povišano",
     "readings.sl.one": "odčitek",
     "readings.sl.few": "odčitki",
     "readings.sl.many": "odčitkov",
@@ -415,6 +460,11 @@
     "chart.systolic": "Systolic (mmHg)",
     "chart.diastolic": "Diastolic (mmHg)",
     "chart.pulse": "Pulse (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.one": "reading",
     "readings.other": "readings",
     "err.emptyFile": "The file is empty.",
@@ -443,6 +493,11 @@
     "chart.systolic": "Систолна (mmHg)",
     "chart.diastolic": "Диастолна (mmHg)",
     "chart.pulse": "Пулс (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "измерване",
     "readings.sl.few": "измервания",
     "readings.sl.many": "измервания",
@@ -474,6 +529,11 @@
     "chart.systolic": "Sistolički (mmHg)",
     "chart.diastolic": "Dijastolički (mmHg)",
     "chart.pulse": "Puls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "odčitak",
     "readings.sl.few": "odčitaka",
     "readings.sl.many": "odčitaka",
@@ -505,6 +565,11 @@
     "chart.systolic": "Systolický (mmHg)",
     "chart.diastolic": "Diastolický (mmHg)",
     "chart.pulse": "Tep (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "měření",
     "readings.sl.few": "měření",
     "readings.sl.many": "měření",
@@ -536,6 +601,11 @@
     "chart.systolic": "Systolisk (mmHg)",
     "chart.diastolic": "Diastolisk (mmHg)",
     "chart.pulse": "Puls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "aflæsning",
     "readings.sl.few": "aflæsninger",
     "readings.sl.many": "aflæsninger",
@@ -567,6 +637,11 @@
     "chart.systolic": "Systolisch (mmHg)",
     "chart.diastolic": "Diastolisch (mmHg)",
     "chart.pulse": "Pols (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "meting",
     "readings.sl.few": "metingen",
     "readings.sl.many": "metingen",
@@ -598,6 +673,11 @@
     "chart.systolic": "Süstoolne (mmHg)",
     "chart.diastolic": "Diastoolne (mmHg)",
     "chart.pulse": "Puls (löök/min)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "mõõtmine",
     "readings.sl.few": "mõõtmist",
     "readings.sl.many": "mõõtmist",
@@ -629,6 +709,11 @@
     "chart.systolic": "Systolinen (mmHg)",
     "chart.diastolic": "Diastolinen (mmHg)",
     "chart.pulse": "Syke (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "mittaus",
     "readings.sl.few": "mittausta",
     "readings.sl.many": "mittausta",
@@ -660,6 +745,11 @@
     "chart.systolic": "Systolique (mmHg)",
     "chart.diastolic": "Diastolique (mmHg)",
     "chart.pulse": "Pouls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "mesure",
     "readings.sl.few": "mesures",
     "readings.sl.many": "mesures",
@@ -691,6 +781,11 @@
     "chart.systolic": "Systolisch (mmHg)",
     "chart.diastolic": "Diastolisch (mmHg)",
     "chart.pulse": "Puls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "Messung",
     "readings.sl.few": "Messungen",
     "readings.sl.many": "Messungen",
@@ -722,6 +817,11 @@
     "chart.systolic": "Συστολική (mmHg)",
     "chart.diastolic": "Διαστολική (mmHg)",
     "chart.pulse": "Σφυγμός (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "μέτρηση",
     "readings.sl.few": "μετρήσεις",
     "readings.sl.many": "μετρήσεις",
@@ -753,6 +853,11 @@
     "chart.systolic": "Szisztolés (mmHg)",
     "chart.diastolic": "Diasztolés (mmHg)",
     "chart.pulse": "Pulzus (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "mérés",
     "readings.sl.few": "mérés",
     "readings.sl.many": "mérés",
@@ -784,6 +889,11 @@
     "chart.systolic": "Systolic (mmHg)",
     "chart.diastolic": "Diastolic (mmHg)",
     "chart.pulse": "Cuisle (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "léamh",
     "readings.sl.few": "léamhanna",
     "readings.sl.many": "léamhanna",
@@ -815,6 +925,11 @@
     "chart.systolic": "Sistolica (mmHg)",
     "chart.diastolic": "Diastolica (mmHg)",
     "chart.pulse": "Polso (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "misura",
     "readings.sl.few": "misure",
     "readings.sl.many": "misure",
@@ -846,6 +961,11 @@
     "chart.systolic": "Sistoliskais (mmHg)",
     "chart.diastolic": "Diastoliskais (mmHg)",
     "chart.pulse": "Pulss (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "mērījums",
     "readings.sl.few": "mērījumi",
     "readings.sl.many": "mērījumi",
@@ -877,6 +997,11 @@
     "chart.systolic": "Sistolinis (mmHg)",
     "chart.diastolic": "Diastolinis (mmHg)",
     "chart.pulse": "Pulsas (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "matavimas",
     "readings.sl.few": "matavimai",
     "readings.sl.many": "matavimai",
@@ -908,6 +1033,11 @@
     "chart.systolic": "Sistolika (mmHg)",
     "chart.diastolic": "Diastolika (mmHg)",
     "chart.pulse": "Polz (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "qari",
     "readings.sl.few": "qrar",
     "readings.sl.many": "qrar",
@@ -939,6 +1069,11 @@
     "chart.systolic": "Skurczowe (mmHg)",
     "chart.diastolic": "Rozkurczowe (mmHg)",
     "chart.pulse": "Puls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "pomiar",
     "readings.sl.few": "pomiary",
     "readings.sl.many": "pomiary",
@@ -970,6 +1105,11 @@
     "chart.systolic": "Sistólica (mmHg)",
     "chart.diastolic": "Diastólica (mmHg)",
     "chart.pulse": "Pulso (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "leitura",
     "readings.sl.few": "leituras",
     "readings.sl.many": "leituras",
@@ -1001,6 +1141,11 @@
     "chart.systolic": "Sistolică (mmHg)",
     "chart.diastolic": "Diastolică (mmHg)",
     "chart.pulse": "Puls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "măsurătoare",
     "readings.sl.few": "măsurători",
     "readings.sl.many": "măsurători",
@@ -1032,6 +1177,11 @@
     "chart.systolic": "Systolický (mmHg)",
     "chart.diastolic": "Diastolický (mmHg)",
     "chart.pulse": "Pulz (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "meranie",
     "readings.sl.few": "merania",
     "readings.sl.many": "merania",
@@ -1063,6 +1213,11 @@
     "chart.systolic": "Sistólica (mmHg)",
     "chart.diastolic": "Diastólica (mmHg)",
     "chart.pulse": "Pulso (lpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "medición",
     "readings.sl.few": "mediciones",
     "readings.sl.many": "mediciones",
@@ -1094,6 +1249,11 @@
     "chart.systolic": "Systoliskt (mmHg)",
     "chart.diastolic": "Diastoliskt (mmHg)",
     "chart.pulse": "Puls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "mätning",
     "readings.sl.few": "mätningar",
     "readings.sl.many": "mätningar",
@@ -1125,6 +1285,11 @@
     "chart.systolic": "収縮期（mmHg）",
     "chart.diastolic": "拡張期（mmHg）",
     "chart.pulse": "脈拍（bpm）",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "件",
     "readings.sl.few": "件",
     "readings.sl.many": "件",
@@ -1156,6 +1321,11 @@
     "chart.systolic": "Systolisk (mmHg)",
     "chart.diastolic": "Diastolisk (mmHg)",
     "chart.pulse": "Puls (bpm)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "måling",
     "readings.sl.few": "målinger",
     "readings.sl.many": "målinger",
@@ -1187,6 +1357,11 @@
     "chart.systolic": "Систолічний (мм рт. ст.)",
     "chart.diastolic": "Діастолічний (мм рт. ст.)",
     "chart.pulse": "Пульс (уд/хв)",
+    "analysis.groupLabel": "Analysis type",
+    "analysis.granual": "Granual",
+    "analysis.simplified": "Simplified",
+    "analysis.normal": "Normal",
+    "analysis.abnormal": "Abnormal",
     "readings.sl.one": "вимірювання",
     "readings.sl.few": "вимірювань",
     "readings.sl.many": "вимірювань",
@@ -1305,10 +1480,6 @@
       return new Intl.DateTimeFormat(localeTag(), {
         day: "2-digit",
         month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
       }).format(date);
     }
 
@@ -1348,6 +1519,7 @@
       if (lastParsedData) {
         updateSubtitle(lastParsedData);
       }
+      syncAnalysisButtons();
       syncUploadAction();
     }
 
@@ -1371,9 +1543,12 @@
     let systolicAggChart = null;
     let diastolicAggChart = null;
     let lastParsedData = null;
+    let selectedAnalysisMode = "granual";
 
     const subtitleEl = document.getElementById("subtitle");
     const chartsSection = document.getElementById("chartsSection");
+    const analysisActions = document.getElementById("analysisActions");
+    const analysisButtons = Array.from(document.querySelectorAll("[data-analysis-mode]"));
     const chartActions = document.getElementById("chartActions");
     const uploadError = document.getElementById("uploadError");
     const csvModal = document.getElementById("csvModal");
@@ -1385,6 +1560,12 @@
     const openUploadBtnText = document.getElementById("openUploadBtnText");
     const langSelect = document.getElementById("langSelect");
     fillLangSelect();
+
+    function syncAnalysisButtons() {
+      analysisButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.analysisMode === selectedAnalysisMode));
+      });
+    }
 
     function syncUploadAction() {
       const hasData = Boolean(lastParsedData);
@@ -1416,6 +1597,16 @@
     }
 
     openUploadBtn.addEventListener("click", openCsvModal);
+
+    analysisButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = button.dataset.analysisMode;
+        if (!ANALYSIS_MODES[mode] || mode === selectedAnalysisMode) return;
+        selectedAnalysisMode = mode;
+        syncAnalysisButtons();
+        if (lastParsedData) renderCharts(lastParsedData);
+      });
+    });
 
     csvModalClose.addEventListener("click", closeCsvModal);
 
@@ -1510,6 +1701,7 @@
       brown: "rgba(250, 204, 21, 0.18)",
       orange: "rgba(249, 115, 22, 0.18)",
       red: "rgba(239, 68, 68, 0.18)",
+      yellow: "rgba(234, 179, 8, 0.18)",
     };
 
     function mmHgZone(id, yMin, yMax, color) {
@@ -1524,81 +1716,102 @@
       };
     }
 
-    const pressureZones = {
-      dGreen: mmHgZone("dGreen", 80, 85, zoneColors.green),
-      dBrown: mmHgZone("dBrown", 85, 90, zoneColors.brown),
-      dOrange: mmHgZone("dOrange", 90, 100, zoneColors.orange),
-      dRed: mmHgZone("dRed", 100, 110, zoneColors.red),
-      sGreen: mmHgZone("sGreen", 120, 130, zoneColors.green),
-      sBrown: mmHgZone("sBrown", 130, 140, zoneColors.brown),
-      sOrange: mmHgZone("sOrange", 140, 160, zoneColors.orange),
-      sRed: mmHgZone("sRed", 160, 180, zoneColors.red),
-    };
-
     const pointPalette = {
       green: "#22c55e",
+      yellow: "#eab308",
       brown: "#eab308",
       orange: "#f97316",
       red: "#ef4444",
       neutral: "#94a3b8",
     };
 
-    const bucketColors = [
-      pointPalette.neutral,
-      pointPalette.green,
-      pointPalette.brown,
-      pointPalette.orange,
-      pointPalette.red,
-    ];
+    const ANALYSIS_MODES = {
+      granual: {
+        pressureZones: {
+          dGreen: mmHgZone("dGreen", 80, 85, zoneColors.green),
+          dBrown: mmHgZone("dBrown", 85, 90, zoneColors.brown),
+          dOrange: mmHgZone("dOrange", 90, 100, zoneColors.orange),
+          dRed: mmHgZone("dRed", 100, 110, zoneColors.red),
+          sGreen: mmHgZone("sGreen", 120, 130, zoneColors.green),
+          sBrown: mmHgZone("sBrown", 130, 140, zoneColors.brown),
+          sOrange: mmHgZone("sOrange", 140, 160, zoneColors.orange),
+          sRed: mmHgZone("sRed", 160, 180, zoneColors.red),
+        },
+        colors: [
+          pointPalette.neutral,
+          pointPalette.green,
+          pointPalette.brown,
+          pointPalette.orange,
+          pointPalette.red,
+        ],
+        systolicLabels: () => ["<120", "120–130", "131–140", "141–160", ">160"],
+        diastolicLabels: () => ["<80", "80–85", "86–89", "90–99", "≥100"],
+        bucketSystolic(v) {
+          if (v <= 130) return 1;
+          if (v <= 140) return 2;
+          if (v <= 160) return 3;
+          return 4;
+        },
+        bucketDiastolic(v) {
+          if (v < 80) return 0;
+          if (v <= 85) return 1;
+          if (v <= 89) return 2;
+          if (v < 100) return 3;
+          return 4;
+        },
+      },
+      simplified: {
+        pressureZones: {
+          dAbnormal: mmHgZone("dAbnormal", 85, 110, zoneColors.yellow),
+          sAbnormal: mmHgZone("sAbnormal", 135, 180, zoneColors.yellow),
+        },
+        colors: [
+          pointPalette.green,
+          pointPalette.yellow,
+        ],
+        systolicLabels: () => [t("analysis.normal"), t("analysis.abnormal")],
+        diastolicLabels: () => [t("analysis.normal"), t("analysis.abnormal")],
+        bucketSystolic(v) {
+          return v < 135 ? 0 : 1;
+        },
+        bucketDiastolic(v) {
+          return v < 85 ? 0 : 1;
+        },
+      },
+    };
 
-    const systolicZoneLabels = ["<120", "120–130", "131–140", "141–160", ">160"];
-    const diastolicZoneLabels = ["<80", "80–85", "86–89", "90–99", "≥100"];
-
-    /** Same visual width for Y labels on both aggregate charts (monospace + pad). */
-    const AGG_ZONE_LABEL_MAX_CHARS = Math.max(
-      ...systolicZoneLabels.map((s) => [...s].length),
-      ...diastolicZoneLabels.map((s) => [...s].length),
-    );
-
-    function padAggregateZoneLabels(labels) {
+    function padAggregateZoneLabels(labels, maxChars) {
       return labels.map((s) => {
         const n = [...s].length;
-        if (n >= AGG_ZONE_LABEL_MAX_CHARS) return s;
-        return s + "\u2007".repeat(AGG_ZONE_LABEL_MAX_CHARS - n);
+        if (n >= maxChars) return s;
+        return s + "\u2007".repeat(maxChars - n);
       });
     }
 
-    const systolicZoneLabelsPadded = padAggregateZoneLabels(systolicZoneLabels);
-    const diastolicZoneLabelsPadded = padAggregateZoneLabels(diastolicZoneLabels);
+    function padAggregateLabelPair(systolicLabels, diastolicLabels) {
+      const maxChars = Math.max(
+        ...systolicLabels.map((s) => [...s].length),
+        ...diastolicLabels.map((s) => [...s].length),
+      );
+      return {
+        systolic: padAggregateZoneLabels(systolicLabels, maxChars),
+        diastolic: padAggregateZoneLabels(diastolicLabels, maxChars),
+      };
+    }
 
     const AGG_Y_TICK_FONT = {
       size: 11,
       family: "ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace",
     };
 
-    function bucketSystolic(v) {
-      if (v <= 130) return 1;
-      if (v <= 140) return 2;
-      if (v <= 160) return 3;
-      return 4;
-    }
-
-    function bucketDiastolic(v) {
-      if (v < 80) return 0;
-      if (v <= 85) return 1;
-      if (v <= 89) return 2;
-      if (v < 100) return 3;
-      return 4;
-    }
-
-    function countByBucket(values, bucketFn) {
-      const counts = [0, 0, 0, 0, 0];
+    function countByBucket(values, bucketFn, bucketCount) {
+      const counts = Array.from({ length: bucketCount }, () => 0);
       for (const v of values) counts[bucketFn(v)] += 1;
       return counts;
     }
 
-    function colorForBucket(v, bucketFn) {
-      return bucketColors[bucketFn(v)];
+    function colorForBucket(v, bucketFn, colors) {
+      return colors[bucketFn(v)];
     }
 
     function calculateAggregateAxisRange(...countGroups) {
@@ -1617,15 +1830,15 @@
       };
     }
 
-    function createAggregateBarChart(canvasId, data, zoneLabels, xAxisRange, hideXLabels = false) {
+    function createAggregateBarChart(canvasId, data, zoneLabels, colors, xAxisRange, hideXLabels = false) {
       return new Chart(document.getElementById(canvasId), {
         type: "bar",
         data: {
           labels: zoneLabels,
           datasets: [{
             data,
-            backgroundColor: bucketColors,
-            borderColor: bucketColors,
+            backgroundColor: colors,
+            borderColor: colors,
             borderWidth: 1,
             maxBarThickness: 14,
             categoryPercentage: 0.55,
@@ -1693,15 +1906,18 @@
     function renderCharts(data) {
       destroyCharts();
 
+      const analysis = ANALYSIS_MODES[selectedAnalysisMode] || ANALYSIS_MODES.granual;
+      const bucketCount = analysis.colors.length;
+      const aggregateLabels = padAggregateLabelPair(analysis.systolicLabels(), analysis.diastolicLabels());
       const labels = data.map((d) => formatChartAxisLabel(d.datetime));
       const systolic = data.map((d) => d.systolic);
       const diastolic = data.map((d) => d.diastolic);
       const pulse = data.map((d) => d.pulse);
 
-      const systolicPointColors = systolic.map((v) => colorForBucket(v, bucketSystolic));
-      const diastolicPointColors = diastolic.map((v) => colorForBucket(v, bucketDiastolic));
-      const systolicAggregate = countByBucket(systolic, bucketSystolic);
-      const diastolicAggregate = countByBucket(diastolic, bucketDiastolic);
+      const systolicPointColors = systolic.map((v) => colorForBucket(v, analysis.bucketSystolic, analysis.colors));
+      const diastolicPointColors = diastolic.map((v) => colorForBucket(v, analysis.bucketDiastolic, analysis.colors));
+      const systolicAggregate = countByBucket(systolic, analysis.bucketSystolic, bucketCount);
+      const diastolicAggregate = countByBucket(diastolic, analysis.bucketDiastolic, bucketCount);
       const aggregateAxisRange = calculateAggregateAxisRange(systolicAggregate, diastolicAggregate);
 
       const ctx = document.getElementById("chart").getContext("2d");
@@ -1745,8 +1961,8 @@
             {
               label: t("chart.pulse"),
               data: pulse,
-              borderColor: "#16a34a",
-              backgroundColor: "rgba(22, 163, 74, 0.08)",
+              borderColor: "#334155",
+              backgroundColor: "rgba(51, 65, 85, 0.08)",
               borderWidth: 2,
               pointRadius: 2,
               pointHoverRadius: 5,
@@ -1759,7 +1975,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: true,
-          aspectRatio: 2.2,
+          aspectRatio: 1.75,
           interaction: {
             mode: "index",
             intersect: false,
@@ -1788,7 +2004,7 @@
               },
             },
             annotation: {
-              annotations: pressureZones,
+              annotations: analysis.pressureZones,
             },
           },
           scales: {
@@ -1802,7 +2018,7 @@
                 maxRotation: 45,
                 minRotation: 45,
                 autoSkip: true,
-                maxTicksLimit: 20,
+                maxTicksLimit: 35,
               },
             },
             yMmHg: {
@@ -1816,6 +2032,9 @@
               },
               min: 60,
               max: 180,
+              ticks: {
+                stepSize: 10,
+              },
               grid: { color: "rgba(0,0,0,0.06)" },
             },
             yBpm: {
@@ -1825,7 +2044,7 @@
                 display: true,
                 text: "bpm",
                 font: { weight: "600" },
-                color: "#16a34a",
+                color: "#334155",
               },
               min: 50,
               max: 100,
@@ -1835,9 +2054,10 @@
         },
       });
 
-      systolicAggChart = createAggregateBarChart("chartSystolicAgg", systolicAggregate, systolicZoneLabelsPadded, aggregateAxisRange, true);
-      diastolicAggChart = createAggregateBarChart("chartDiastolicAgg", diastolicAggregate, diastolicZoneLabelsPadded, aggregateAxisRange);
+      systolicAggChart = createAggregateBarChart("chartSystolicAgg", systolicAggregate, aggregateLabels.systolic, analysis.colors, aggregateAxisRange, true);
+      diastolicAggChart = createAggregateBarChart("chartDiastolicAgg", diastolicAggregate, aggregateLabels.diastolic, analysis.colors, aggregateAxisRange);
       chartsSection.classList.remove("hidden");
+      analysisActions.classList.remove("hidden");
       syncUploadAction();
     }
 
@@ -1862,6 +2082,7 @@
         if (!lastParsedData) {
           subtitleEl.classList.add("hidden");
           chartsSection.classList.add("hidden");
+          analysisActions.classList.add("hidden");
           destroyCharts();
           syncUploadAction();
         }
