@@ -10,7 +10,9 @@ Single-page web app that turns a blood pressure export CSV into charts you can e
 - **Many languages**: the interface is available in all official EU languages, plus Japanese, Norwegian, and Ukrainian. **The language is chosen automatically** from your browser settings when possible; you can still switch it manually from the language menu in the header.
 - **Translations are not professionally verified.** If you spot errors or awkward wording, **pull requests are very welcome**—small fixes are especially helpful.
 
-<img src="./screenshot.webp" width="100%" height="auto">
+<img src="./screenshot-granual.webp" width="100%" height="auto">
+
+<img src="./screenshot-simplified.webp" width="100%" height="auto">
 
 > Screenshot of the app. Data for the chart is random generated. See source file `sample-data.csv` in this repository.
 
