@@ -10,7 +10,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #f5f7fa;
+      background: #fff;
       color: #1a1a2e;
       padding: 24px;
       min-height: 100vh;
@@ -22,6 +22,8 @@
     .page-header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
       gap: 12px;
       margin-bottom: 4px;
     }
@@ -67,6 +69,7 @@
       display: flex;
       flex-shrink: 0;
       align-items: center;
+      justify-content: flex-end;
       gap: 8px;
     }
     .lang-select {
@@ -94,6 +97,21 @@
       color: #64748b;
       font-size: 0.9rem;
       margin-bottom: 20px;
+    }
+    .chart-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .chart-actions.empty-state {
+      align-items: center;
+      min-height: calc(100vh - 120px);
+      margin-top: 0;
+    }
+    .chart-actions .page-menu-btn {
+      border-color: #e2e8f0;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
     }
     .charts-grid {
       display: grid;
@@ -144,6 +162,29 @@
       }
       .aggregate-column {
         align-self: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+      .page-header {
+        align-items: flex-start;
+        gap: 10px;
+      }
+      h1 {
+        flex-basis: 100%;
+        font-size: 1.25rem;
+        line-height: 1.25;
+      }
+      .page-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .lang-select {
+        min-width: 0;
+        max-width: 100%;
       }
     }
   
@@ -265,25 +306,9 @@
       <div class="page-header-actions">
         <label id="langSelectLabel" class="visually-hidden" for="langSelect" data-i18n="lang.selectLabel">Jezik</label>
         <select id="langSelect" class="lang-select" aria-labelledby="langSelectLabel"></select>
-      <button
-        type="button"
-        id="toggleFormBtn"
-        class="page-menu-btn"
-        aria-expanded="false"
-        aria-controls="csvModal"
-        aria-haspopup="dialog"
-        title="Odpri uvoz CSV"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" y1="3" x2="12" y2="15" />
-        </svg>
-        <span class="page-menu-btn-text" data-i18n="btn.csv.label">CSV</span>
-      </button>
       </div>
     </div>
-    <p id="subtitle" class="subtitle" data-i18n="subtitle.empty">Naložite CSV poročilo za prikaz grafov.</p>
+    <p id="subtitle" class="subtitle hidden"></p>
     <div id="chartsSection" class="charts-grid hidden">
       <div class="chart-card main-chart">
         <canvas id="chart"></canvas>
@@ -301,12 +326,29 @@
         </div>
       </div>
     </div>
+    <div id="chartActions" class="chart-actions hidden">
+      <button
+        type="button"
+        id="openUploadBtn"
+        class="page-menu-btn"
+        aria-controls="csvModal"
+        aria-haspopup="dialog"
+        title="Odpri uvoz CSV"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        <span id="openUploadBtnText" class="page-menu-btn-text">Odpri uvoz CSV</span>
+      </button>
+    </div>
   </div>
 
   <div id="csvModal" class="csv-modal hidden" role="dialog" aria-modal="true" aria-labelledby="csvModalTitle" aria-hidden="true">
     <div class="csv-modal-panel chart-card">
       <div class="csv-modal-header">
-        <h2 id="csvModalTitle" class="csv-modal-title" data-i18n="modal.title">Uvoz CSV</h2>
+        <h2 id="csvModalTitle" class="csv-modal-title" data-i18n="modal.title">Uvoz podatkov</h2>
         <button type="button" id="csvModalClose" class="csv-modal-close" data-i18n-attr="aria-label" data-i18n="modal.close" aria-label="Zapri">&times;</button>
       </div>
       <form id="csvUploadForm" class="upload-form">
@@ -331,8 +373,9 @@
     "lang.selectLabel": "Jezik",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Odpri uvoz CSV",
+    "btn.csv.reimport": "Ponovni uvoz podatkov CSV",
     "btn.csv.close": "Zapri okno za uvoz CSV",
-    "modal.title": "Uvoz CSV",
+    "modal.title": "Uvoz podatkov",
     "modal.close": "Zapri",
     "form.fileLabel": "CSV datoteka",
     "form.submit": "Naloži in prikaži",
@@ -361,8 +404,9 @@
     "lang.selectLabel": "Language",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Open CSV import",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Close CSV import",
-    "modal.title": "Import CSV",
+    "modal.title": "Data import",
     "modal.close": "Close",
     "form.fileLabel": "CSV file",
     "form.submit": "Load and show",
@@ -388,8 +432,9 @@
     "lang.selectLabel": "Език",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Отваряне на CSV импорт",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Затваряне на CSV импорт",
-    "modal.title": "Импорт на CSV",
+    "modal.title": "Импорт на данни",
     "modal.close": "Затвори",
     "form.fileLabel": "CSV файл",
     "form.submit": "Зареждане и показване",
@@ -418,8 +463,9 @@
     "lang.selectLabel": "Jezik",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Otvori uvoz CSV-a",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Zatvori uvoz CSV-a",
-    "modal.title": "Uvoz CSV-a",
+    "modal.title": "Uvoz podataka",
     "modal.close": "Zatvori",
     "form.fileLabel": "CSV datoteka",
     "form.submit": "Učitaj i prikaži",
@@ -448,8 +494,9 @@
     "lang.selectLabel": "Jazyk",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Otevřít import CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Zavřít import CSV",
-    "modal.title": "Import CSV",
+    "modal.title": "Import dat",
     "modal.close": "Zavřít",
     "form.fileLabel": "Soubor CSV",
     "form.submit": "Načíst a zobrazit",
@@ -478,8 +525,9 @@
     "lang.selectLabel": "Sprog",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Åbn CSV-import",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Luk CSV-import",
-    "modal.title": "Importér CSV",
+    "modal.title": "Importér data",
     "modal.close": "Luk",
     "form.fileLabel": "CSV-fil",
     "form.submit": "Indlæs og vis",
@@ -508,8 +556,9 @@
     "lang.selectLabel": "Taal",
     "btn.csv.label": "CSV",
     "btn.csv.open": "CSV-import openen",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "CSV-import sluiten",
-    "modal.title": "CSV importeren",
+    "modal.title": "Gegevens importeren",
     "modal.close": "Sluiten",
     "form.fileLabel": "CSV-bestand",
     "form.submit": "Laden en tonen",
@@ -538,8 +587,9 @@
     "lang.selectLabel": "Keel",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Ava CSV import",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Sulge CSV import",
-    "modal.title": "CSV import",
+    "modal.title": "Andmete import",
     "modal.close": "Sulge",
     "form.fileLabel": "CSV fail",
     "form.submit": "Laadi ja kuva",
@@ -568,8 +618,9 @@
     "lang.selectLabel": "Kieli",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Avaa CSV-tuonti",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Sulje CSV-tuonti",
-    "modal.title": "Tuo CSV",
+    "modal.title": "Tietojen tuonti",
     "modal.close": "Sulje",
     "form.fileLabel": "CSV-tiedosto",
     "form.submit": "Lataa ja näytä",
@@ -598,8 +649,9 @@
     "lang.selectLabel": "Langue",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Ouvrir l’import CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Fermer l’import CSV",
-    "modal.title": "Importer un CSV",
+    "modal.title": "Import de données",
     "modal.close": "Fermer",
     "form.fileLabel": "Fichier CSV",
     "form.submit": "Charger et afficher",
@@ -628,8 +680,9 @@
     "lang.selectLabel": "Sprache",
     "btn.csv.label": "CSV",
     "btn.csv.open": "CSV-Import öffnen",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "CSV-Import schließen",
-    "modal.title": "CSV importieren",
+    "modal.title": "Daten importieren",
     "modal.close": "Schließen",
     "form.fileLabel": "CSV-Datei",
     "form.submit": "Laden und anzeigen",
@@ -658,8 +711,9 @@
     "lang.selectLabel": "Γλώσσα",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Άνοιγμα εισαγωγής CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Κλείσιμο εισαγωγής CSV",
-    "modal.title": "Εισαγωγή CSV",
+    "modal.title": "Εισαγωγή δεδομένων",
     "modal.close": "Κλείσιμο",
     "form.fileLabel": "Αρχείο CSV",
     "form.submit": "Φόρτωση και εμφάνιση",
@@ -688,8 +742,9 @@
     "lang.selectLabel": "Nyelv",
     "btn.csv.label": "CSV",
     "btn.csv.open": "CSV import megnyitása",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "CSV import bezárása",
-    "modal.title": "CSV importálás",
+    "modal.title": "Adatok importálása",
     "modal.close": "Bezárás",
     "form.fileLabel": "CSV fájl",
     "form.submit": "Betöltés és megjelenítés",
@@ -718,8 +773,9 @@
     "lang.selectLabel": "Teanga",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Oscail allmhairiú CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Dún allmhairiú CSV",
-    "modal.title": "Iompórtáil CSV",
+    "modal.title": "Iompórtáil sonraí",
     "modal.close": "Dún",
     "form.fileLabel": "Comhad CSV",
     "form.submit": "Lódáil agus taispeáin",
@@ -748,8 +804,9 @@
     "lang.selectLabel": "Lingua",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Apri importazione CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Chiudi importazione CSV",
-    "modal.title": "Importa CSV",
+    "modal.title": "Importa dati",
     "modal.close": "Chiudi",
     "form.fileLabel": "File CSV",
     "form.submit": "Carica e mostra",
@@ -778,8 +835,9 @@
     "lang.selectLabel": "Valoda",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Atvērt CSV importu",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Aizvērt CSV importu",
-    "modal.title": "CSV imports",
+    "modal.title": "Datu imports",
     "modal.close": "Aizvērt",
     "form.fileLabel": "CSV fails",
     "form.submit": "Ielādē un rādi",
@@ -808,8 +866,9 @@
     "lang.selectLabel": "Kalba",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Atidaryti CSV importą",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Uždaryti CSV importą",
-    "modal.title": "CSV importas",
+    "modal.title": "Duomenų importas",
     "modal.close": "Uždaryti",
     "form.fileLabel": "CSV failas",
     "form.submit": "Įkelti ir rodyti",
@@ -838,8 +897,9 @@
     "lang.selectLabel": "Lingwa",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Iftaħ importazzjoni CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Agħlaq importazzjoni CSV",
-    "modal.title": "Importa CSV",
+    "modal.title": "Importa data",
     "modal.close": "Agħlaq",
     "form.fileLabel": "Fajl CSV",
     "form.submit": "Ptax u uri",
@@ -868,8 +928,9 @@
     "lang.selectLabel": "Język",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Otwórz import CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Zamknij import CSV",
-    "modal.title": "Import CSV",
+    "modal.title": "Import danych",
     "modal.close": "Zamknij",
     "form.fileLabel": "Plik CSV",
     "form.submit": "Wczytaj i pokaż",
@@ -898,8 +959,9 @@
     "lang.selectLabel": "Idioma",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Abrir importação CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Fechar importação CSV",
-    "modal.title": "Importar CSV",
+    "modal.title": "Importar dados",
     "modal.close": "Fechar",
     "form.fileLabel": "Ficheiro CSV",
     "form.submit": "Carregar e mostrar",
@@ -928,8 +990,9 @@
     "lang.selectLabel": "Limbă",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Deschide import CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Închide import CSV",
-    "modal.title": "Import CSV",
+    "modal.title": "Import de date",
     "modal.close": "Închide",
     "form.fileLabel": "Fișier CSV",
     "form.submit": "Încarcă și afișează",
@@ -958,8 +1021,9 @@
     "lang.selectLabel": "Jazyk",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Otvoriť import CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Zavrieť import CSV",
-    "modal.title": "Import CSV",
+    "modal.title": "Import údajov",
     "modal.close": "Zavrieť",
     "form.fileLabel": "Súbor CSV",
     "form.submit": "Načítať a zobraziť",
@@ -988,8 +1052,9 @@
     "lang.selectLabel": "Idioma",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Abrir importación CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Cerrar importación CSV",
-    "modal.title": "Importar CSV",
+    "modal.title": "Importar datos",
     "modal.close": "Cerrar",
     "form.fileLabel": "Archivo CSV",
     "form.submit": "Cargar y mostrar",
@@ -1018,8 +1083,9 @@
     "lang.selectLabel": "Språk",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Öppna CSV-import",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Stäng CSV-import",
-    "modal.title": "Importera CSV",
+    "modal.title": "Importera data",
     "modal.close": "Stäng",
     "form.fileLabel": "CSV-fil",
     "form.submit": "Läs in och visa",
@@ -1048,8 +1114,9 @@
     "lang.selectLabel": "言語",
     "btn.csv.label": "CSV",
     "btn.csv.open": "CSVインポートを開く",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "CSVインポートを閉じる",
-    "modal.title": "CSVのインポート",
+    "modal.title": "データのインポート",
     "modal.close": "閉じる",
     "form.fileLabel": "CSVファイル",
     "form.submit": "読み込んで表示",
@@ -1078,8 +1145,9 @@
     "lang.selectLabel": "Språk",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Åpne CSV-import",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Lukk CSV-import",
-    "modal.title": "Importer CSV",
+    "modal.title": "Importer data",
     "modal.close": "Lukk",
     "form.fileLabel": "CSV-fil",
     "form.submit": "Last inn og vis",
@@ -1108,8 +1176,9 @@
     "lang.selectLabel": "Мова",
     "btn.csv.label": "CSV",
     "btn.csv.open": "Відкрити імпорт CSV",
+    "btn.csv.reimport": "Re-import CSV data",
     "btn.csv.close": "Закрити імпорт CSV",
-    "modal.title": "Імпорт CSV",
+    "modal.title": "Імпорт даних",
     "modal.close": "Закрити",
     "form.fileLabel": "Файл CSV",
     "form.submit": "Завантажити й показати",
@@ -1279,7 +1348,7 @@
       if (lastParsedData) {
         updateSubtitle(lastParsedData);
       }
-      syncCsvButtonTitle();
+      syncUploadAction();
     }
 
     function setLanguage(raw) {
@@ -1305,42 +1374,48 @@
 
     const subtitleEl = document.getElementById("subtitle");
     const chartsSection = document.getElementById("chartsSection");
+    const chartActions = document.getElementById("chartActions");
     const uploadError = document.getElementById("uploadError");
     const csvModal = document.getElementById("csvModal");
     const csvModalPanel = csvModal.querySelector(".csv-modal-panel");
     const csvModalClose = document.getElementById("csvModalClose");
     const uploadForm = document.getElementById("csvUploadForm");
     const csvFileInput = document.getElementById("csvFile");
-    const toggleFormBtn = document.getElementById("toggleFormBtn");
+    const openUploadBtn = document.getElementById("openUploadBtn");
+    const openUploadBtnText = document.getElementById("openUploadBtnText");
     const langSelect = document.getElementById("langSelect");
     fillLangSelect();
 
-    function syncCsvButtonTitle() {
-      const hidden = csvModal.classList.contains("hidden");
-      toggleFormBtn.title = hidden ? t("btn.csv.open") : t("btn.csv.close");
+    function syncUploadAction() {
+      const hasData = Boolean(lastParsedData);
+      const modalOpen = !csvModal.classList.contains("hidden");
+      const hidden = !hasData && modalOpen;
+      const label = t(hasData ? "btn.csv.reimport" : "btn.csv.open");
+
+      chartActions.classList.toggle("hidden", hidden);
+      chartActions.classList.toggle("empty-state", !hasData);
+      openUploadBtn.title = label;
+      openUploadBtnText.textContent = label;
     }
 
     function openCsvModal() {
       applyDataI18nNodes(csvModal);
+      clearError();
+      csvFileInput.value = "";
       csvModal.classList.remove("hidden");
       csvModal.setAttribute("aria-hidden", "false");
-      toggleFormBtn.setAttribute("aria-expanded", "true");
-      syncCsvButtonTitle();
+      syncUploadAction();
       csvFileInput.focus();
     }
 
     function closeCsvModal() {
       csvModal.classList.add("hidden");
       csvModal.setAttribute("aria-hidden", "true");
-      toggleFormBtn.setAttribute("aria-expanded", "false");
-      syncCsvButtonTitle();
-      toggleFormBtn.focus();
+      syncUploadAction();
+      openUploadBtn.focus();
     }
 
-    toggleFormBtn.addEventListener("click", () => {
-      if (csvModal.classList.contains("hidden")) openCsvModal();
-      else closeCsvModal();
-    });
+    openUploadBtn.addEventListener("click", openCsvModal);
 
     csvModalClose.addEventListener("click", closeCsvModal);
 
@@ -1422,6 +1497,7 @@
       const last = data[data.length - 1].datetime;
       const count = data.length;
       subtitleEl.textContent = `${formatDateLong(first)} – ${formatDateLong(last)}, ${count} ${readingsWord(count)}`;
+      subtitleEl.classList.remove("hidden");
     }
 
     function destroyCharts() {
@@ -1762,6 +1838,7 @@
       systolicAggChart = createAggregateBarChart("chartSystolicAgg", systolicAggregate, systolicZoneLabelsPadded, aggregateAxisRange, true);
       diastolicAggChart = createAggregateBarChart("chartDiastolicAgg", diastolicAggregate, diastolicZoneLabelsPadded, aggregateAxisRange);
       chartsSection.classList.remove("hidden");
+      syncUploadAction();
     }
 
     uploadForm.addEventListener("submit", async (e) => {
@@ -1782,15 +1859,19 @@
         renderCharts(data);
         closeCsvModal();
       } catch (err) {
-        lastParsedData = null;
-        chartsSection.classList.add("hidden");
-        destroyCharts();
+        if (!lastParsedData) {
+          subtitleEl.classList.add("hidden");
+          chartsSection.classList.add("hidden");
+          destroyCharts();
+          syncUploadAction();
+        }
         const msg = err?.i18nKey ? t(err.i18nKey, err.params || {}) : (err?.message || t("err.generic"));
         showError(msg);
       }
     });
 
     applyI18nDom();
+    if (!lastParsedData) openCsvModal();
   </script>
 </body>
 </html>
